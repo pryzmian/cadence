@@ -13,7 +13,7 @@ import { StorageClientHealth } from '@services/insights/health-checks/StorageCli
 import { useLogger } from '@services/insights/LoggerService';
 import { exec } from 'node:child_process';
 import { performance, PerformanceObserver } from 'node:perf_hooks';
-import { EventHandlerManager } from '@events/EventHandlerManager';
+import { EventManager } from '@events/EventManager';
 import { join } from 'node:path';
 import { DeploymentDispatcher } from '@core/DeploymentDispatcher';
 import type { HealthCheckConfig, ShardClientConfig } from '@config/types';
@@ -32,7 +32,7 @@ const deploymentDispatcher = new DeploymentDispatcher(logger, shardClient, inter
 // Initialize services
 const storageClient = new StorageClient(logger);
 const eventsPath = join(__dirname, 'events');
-const eventHandlerManager = new EventHandlerManager(logger, shardClient, eventsPath);
+const eventManager = new EventManager(logger, shardClient, eventsPath);
 const healthCheckService = new HealthCheckService(logger);
 healthCheckService.registerHealthCheck(new StorageClientHealth(storageClient));
 
@@ -57,7 +57,7 @@ const startApplication = async (): Promise<void> => {
     await coreValidator.checkApplicationVersion();
     await shardClient.start();
     await deploymentDispatcher.refreshSlashCommands();
-    eventHandlerManager.loadEventHandlers();
+    eventManager.loadEventHandlers();
     healthCheckService.start(healthCheckConfig.interval);
 
     logger.info('Application started successfully.');

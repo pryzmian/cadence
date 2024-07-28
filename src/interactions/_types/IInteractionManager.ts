@@ -6,7 +6,7 @@ export enum MessageResponseFlags {
     Ephemeral = 64
 }
 
-export interface IInteractionHandler {
+export interface IInteractionManager {
     handleCommandInteraction(
         logger: ILoggerService,
         shardClient: IShardClient,

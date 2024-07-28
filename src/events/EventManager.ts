@@ -1,28 +1,26 @@
 import { readdirSync } from 'node:fs';
 import path, { join } from 'node:path';
 import type { IEventHandler } from '@type/IEventHandler';
-import type { IEventHandlerManager } from '@type/IEventHandlerManager';
+import type { IEventManager } from '@events/_types/IEventManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ShardClient } from '@core/ShardClient';
 
-export class EventHandlerManager implements IEventHandlerManager {
+export class EventManager implements IEventManager {
     private _logger: ILoggerService;
     private _shardClient: ShardClient;
     private _eventsPath: string;
 
     constructor(logger: ILoggerService, shardClient: ShardClient, eventsPath: string) {
         this._logger = logger.updateContext({ module: 'events' });
-
         this._shardClient = shardClient;
         this._eventsPath = eventsPath;
         this._setMaxListeners(this._shardClient.getShardCount());
-
         this._logger.debug(`Using path '${this._eventsPath}' for event handlers.`);
     }
 
     public loadEventHandlers(): void {
         const directoryContents: string[] = readdirSync(this._eventsPath).filter((file) => !file.endsWith('.js'));
-        if (!directoryContents || directoryContents.length === 0) {
+        if (directoryContents.length === 0) {
             this._logger.error(`No event folders found in path: ${this._eventsPath}`);
             throw new Error(`No event folders found in path ${this._eventsPath}. Exiting...`); // move validation to corevalidator
         }
@@ -46,6 +44,12 @@ export class EventHandlerManager implements IEventHandlerManager {
                     break;
             }
         }
+    }
+
+    public reloadEventHandlers(): void {
+        this._shardClient.removeAllListeners();
+        this.loadEventHandlers();
+        this._logger.debug('Event handlers reloaded.');
     }
 
     private _loadClientEventHandlers(folderPath: string): void {
@@ -97,12 +101,6 @@ export class EventHandlerManager implements IEventHandlerManager {
             eventHandlers.push(eventHandler);
         }
         return eventHandlers;
-    }
-
-    public reloadEventHandlers(): void {
-        this._shardClient.removeAllListeners();
-        this.loadEventHandlers();
-        this._logger.debug('Event handlers reloaded.');
     }
 
     private _getEventFileNames(folderPath: string): string[] {

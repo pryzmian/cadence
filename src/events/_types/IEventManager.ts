@@ -1,4 +1,4 @@
-export interface IEventHandlerManager {
+export interface IEventManager {
     loadEventHandlers(): void;
     reloadEventHandlers(): void;
 }
