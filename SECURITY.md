@@ -14,7 +14,7 @@ The following versions of our project are currently being supported with securit
 
 | Version | Supported |
 | ------- | --------- |
-| ^6.0.0  | ✅        |
+| ^1.0.0  | ✅        |
 
 We strongly encourage users to upgrade to the latest supported version to ensure they have access to the latest security fixes and enhancements.
 

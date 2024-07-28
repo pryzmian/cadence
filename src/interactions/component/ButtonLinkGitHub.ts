@@ -12,7 +12,7 @@ export class ButtonLinkGithubComponent implements IMessageComponent {
         _interaction: ComponentInteraction
     ): Promise<void> {
         logger.debug(`Handling '${this.customId}' component...`);
-        await _interaction.createMessage('https://github.com/mariusbegby/cadence-discord-bot');
+        await _interaction.createMessage('https://github.com/mariusbegby/cadence');
     }
 }
 

@@ -1,15 +1,15 @@
 {
-    "name": "cadence-discord-bot",
-    "version": "6.0.0",
+    "name": "cadence",
+    "version": "0.0.0",
     "description": "A free Discord music bot. No locked functionality, no premium tier, no ads.",
     "repository": {
         "type": "git",
-        "url": "https://github.com/mariusbegby/cadence-discord-bot"
+        "url": "https://github.com/mariusbegby/cadence"
     },
     "bugs": {
-        "url": "https://github.com/mariusbegby/cadence-discord-bot/issues"
+        "url": "https://github.com/mariusbegby/cadence/issues"
     },
-    "homepage": "https://github.com/mariusbegby/cadence-discord-bot#readme",
+    "homepage": "https://github.com/mariusbegby/cadence#readme",
     "author": {
         "name": "Marius Begby",
         "url": "https://github.com/mariusbegby"
@@ -20,13 +20,8 @@
     "jest": {
         "preset": "ts-jest",
         "testEnvironment": "node",
-        "testMatch": [
-            "**/__tests__/**/*.(spec|test).ts"
-        ],
-        "testPathIgnorePatterns": [
-            "/node_modules/",
-            "src/__tests__/_mocks/"
-        ],
+        "testMatch": ["**/__tests__/**/*.(spec|test).ts"],
+        "testPathIgnorePatterns": ["/node_modules/", "src/__tests__/_mocks/"],
         "moduleNameMapper": {
             "^@core/(.*)$": "<rootDir>/src/core/$1",
             "^@events/(.*)$": "<rootDir>/src/events/$1",
