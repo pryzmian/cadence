@@ -1,6 +1,6 @@
-# Contributing to Cadence Discord bot
+# Contributing to Cadence
 
-Thank you for your interest in contributing to [Cadence Discord bot](https://github.com/mariusbegby/cadence-discord-bot/)! We appreciate any contributions that can help improve the bot and make it even better. Before you get started, please take a moment to review the guidelines outlined below.
+Thank you for your interest in contributing to [Cadence](https://github.com/mariusbegby/cadence/)! We appreciate any contributions that can help improve the bot and make it even better. Before you get started, please take a moment to review the guidelines outlined below.
 
 ## How to Contribute
 
@@ -10,7 +10,7 @@ Thank you for your interest in contributing to [Cadence Discord bot](https://git
 4. Test your changes thoroughly to ensure they don't introduce any issues.
 5. Commit your changes with a descriptive commit message.
 6. Push your changes to your forked repository.
-7. Open a pull request (PR) against the main branch of the [Cadence Discord bot](https://github.com/mariusbegby/cadence-discord-bot/) repository.
+7. Open a pull request (PR) against the main branch of the [Cadence](https://github.com/mariusbegby/cadence/) repository.
 
 ### Development instructions
 
@@ -42,10 +42,10 @@ To ensure a smooth and efficient contribution process, please adhere to the foll
 -   Documentation: Provide clear and concise documentation for any new features, changes, or additions you make. This includes updating the [README.md](./README.md) file if necessary.
 -   Tests: If applicable, include test cases for your changes and ensure all existing tests pass successfully.
 -   Bug Reports and Feature Requests: Use the GitHub issue tracker to report any bugs you encounter or suggest new features. Provide detailed information about the issue or feature request to help us understand and address it effectively.
--   License: By contributing to use [Cadence Discord bot](https://github.com/mariusbegby/cadence-discord-bot/), you agree that your contributions will be licensed under the [MIT License](./LICENSE.md).
+-   License: By contributing to use [Cadence](https://github.com/mariusbegby/cadence/), you agree that your contributions will be licensed under the [MIT License](./LICENSE.md).
 
 ## Communication
 
 If you have any questions, suggestions, or need any kind of assistance, feel free to join our [Discord server](https://discord.gg/t6Bm8wPpXB) and ask in the appropriate channel. We have a friendly community ready to help you out!
 
-Thank you for taking the time to contribute to [Cadence Discord bot](https://github.com/mariusbegby/cadence-discord-bot/). Your efforts are greatly appreciated!
+Thank you for taking the time to contribute to [Cadence](https://github.com/mariusbegby/cadence/). Your efforts are greatly appreciated!

@@ -16,7 +16,7 @@ jobs:
                   IMG_WIDTH: '50'
                   FONT_SIZE: '14'
                   PATH: '/README.md'
-                  COMMIT_MESSAGE: 'docs(README): update contributors'
+                  COMMIT_MESSAGE: 'docs(README): Update contributors'
                   AVATAR_SHAPE: 'round'
                   IGNORED_CONTRIBUTORS: 'apps/github-actions, apps/dependabot'
                   BRANCH: 'main'

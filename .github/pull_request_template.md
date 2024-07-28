@@ -2,4 +2,4 @@
 Describe the changes this pull request includes.
 
 ### Dependencies
-Added/removed any dependencies? Explain what and why here.
+Added or removed any dependencies? Explain what and why here.

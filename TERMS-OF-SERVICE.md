@@ -1,6 +1,6 @@
 # Terms of Service
 
-Last updated: July 8, 2023
+Last updated: July 28, 2024
 
 These Terms of Service ("Terms") govern your use of the Discord bot ("Bot") developed by Marius Begby ("Developer"). By using the Bot or adding the Bot to a Discord server, you agree to comply with these Terms. If you do not agree with any of the provisions stated herein, please refrain from using the Bot.
 
