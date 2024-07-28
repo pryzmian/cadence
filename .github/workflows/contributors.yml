@@ -12,7 +12,7 @@ jobs:
               with:
                   CONTRIBUTOR: '### Contributors'
                   COLUMN_PER_ROW: '10'
-                  ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
+                  ACCESS_TOKEN: ${{secrets.CONTRIBUTORS_TOKEN}}
                   IMG_WIDTH: '50'
                   FONT_SIZE: '14'
                   PATH: '/README.md'
