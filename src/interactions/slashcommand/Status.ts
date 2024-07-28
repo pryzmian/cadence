@@ -16,13 +16,9 @@ export class StatusCommand implements ISlashCommand {
     ): Promise<void> {
         logger.debug(`Handling '${this.data.name}' command...`);
 
-        const nodeProcessMemUsageInMb: number = Number.parseFloat(
-            (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)
-        );
+        const nodeMemoryUsageString = this._getMemoryUsage();
         const uptimeFormatted = this._getUptime();
-        const replyString =
-            `**Uptime:** ${uptimeFormatted}\n` +
-            `**Node.js memory:** ${nodeProcessMemUsageInMb.toLocaleString('en-US')} MB`;
+        const replyString = `**Uptime:** ${uptimeFormatted}\n${nodeMemoryUsageString}`;
         await _interaction.createMessage(replyString);
     }
 
@@ -48,6 +44,21 @@ export class StatusCommand implements ISlashCommand {
         }
 
         return uptimeString;
+    }
+
+    private _getNodeVersion(): string {
+        return process.version;
+    }
+
+    private _getMemoryUsage(): string {
+        const memoryUsage = process.memoryUsage();
+        const memoryUsageString =
+            `**Heap total:** ${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB\n` +
+            `**Heap used:** ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB\n` +
+            `**External memory:** ${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB\n` +
+            `**RSS:** ${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB\n` +
+            `**ArrayBuffers:** ${memoryUsage.arrayBuffers}`;
+        return memoryUsageString;
     }
 }
 
