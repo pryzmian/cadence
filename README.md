@@ -1,6 +1,6 @@
 <h1 align="center">
     <br>
-    Cadence - A Free Discord Music Bot
+    Cadence - The free Discord music bot.
     <br><br>
     <img src="./assets/logo-rounded-128px.png" alt="Cadence icon">
     <br><br>
@@ -8,7 +8,7 @@
 
 <h3 align="center">
     Enhance your Discord experience with high-quality music.<br>
-    Completely free and open source!
+    Free, open-source, community-driven!
 </h3>
 
 <p align="center">
@@ -20,47 +20,21 @@
     <a href="https://hub.docker.com/r/mariusbegby/cadence"><img src="https://img.shields.io/docker/pulls/mariusbegby/cadence.svg?style=for-the-badge&label=Pulls&labelColor=1b1c1d&logo=docker&logoColor=white&color=4c73df" alt="Docker pulls for Cadence"></a>
 </p>
 
-## Core Features 🌟
+## 🚨 This is a work in progress 🚨
 
-Cadence offers an enriching audio experience on Discord with features such as:
+**This project is still in development and is not yet ready for production use.**
 
--   High-quality music playback from [many supported sources](https://discord-player.js.org/guide/extractors/stream-sources) thanks to [discord-player](https://github.com/androz2091/discord-player).
--   Slash commands, autocompleting search queries, select menus, buttons and more interactive features!
--   Full queue management system to add, remove, skip or move tracks, view queue and history.
--   Audio filters, shuffle mode, repeat track, queue or autoplay similar tracks!
--   Localization with support for multiple languages both for Slash Commands and embed replies.
--   Open-source codebase and community based development, open to feedback and improvements.
--   No locked functionality, no premium tier, no ads; everything's free, always.
+This is the new repository for **Cadence**, a free and open-source Discord music bot. The old repository can be found [here](https://github.com/mariusbegby/cadence-discord-bot/).
+
+The codebase is being completely rewritten from scratch to optimize for performance and maintainability.
 
 <br>
 
-## Adding Cadence to Your Discord Server 🤖
+## Adding Cadence to your Discord server 🤖 
 
 1. **Invite Cadence**: Click [here](https://discord.com/oauth2/authorize?client_id=1125742835946237992&permissions=0&scope=bot%20applications.commands) to invite Cadence to your Discord server.
 2. **Start Using**: After Cadence has joined your server, use the **`/help`** command for a list of available commands.
 3. **Enjoy**: That's it! There is no additional setup, but you might want to join our [support server](https://discord.gg/t6Bm8wPpXB) to stay updated.
-
-<br>
-
-## Hosting Cadence Yourself 🔓
-
-**Self-Hosting Steps**:
-
-1. Install [Node.js](https://nodejs.org/en/download/) v20.x LTS and latest version of [FFmpeg](https://ffmpeg.org/download.html).
-2. Clone this repository and run `npm install` (use `npm install --legacy-peer-deps` if errors occur).
-3. Build the project with `npm run build`.
-4. Configure `.env` file in the root directory with your bot token and client id (details in `.env.example`).
-5. Deploy slash commands using `npm run deploy`.
-6. Start the bot with `npm start`, the bot should now appear online and be operational.
-
-**Note:** Refer to [Adding your bot to servers](https://discordjs.guide/preparations/adding-your-bot-to-servers.html#bot-invite-links) for help on inviting the bot to your server.
-
-### Configuration and Logging:
-
--   Override default configuration by creating `/config/local.js`.
--   Install [pino-pretty](https://www.npmjs.com/package/pino-pretty) for formatted, colorized console output, this is included in optional dependencies.
--   Logs are stored in `/logs` folder. Configure the logging level in the config file.
--   For production, usage of `pm2` or similar to manage the bot process is recommended.
 
 <br>
 
@@ -72,7 +46,7 @@ Encounter an issue? Open an issue in this repository or join our [Discord suppor
 
 ## Credits and acknowledgments 🎉
 
-This project is made possible by the contributions from the community and the use of libraries like [discord.js](https://github.com/discordjs/discord.js/) and [discord-player](https://github.com/Androz2091/discord-player). Special thanks to [@twlite](https://github.com/twlite), [@pryzmian](https://github.com/pryzmian) and [@retrouser955](https://github.com/retrouser955) for providing feedback and help during development of this bot!
+This project is made possible by the contributions from the community and the use of libraries like [eris](https://github.com/abalabahaha/eris) and [discord-player](https://github.com/Androz2091/discord-player). A special thanks to [@twlite](https://github.com/twlite), [@pryzmian](https://github.com/pryzmian) and [@retrouser955](https://github.com/retrouser955) for providing feedback and help during development of this bot!
 
 ### Contributors
 

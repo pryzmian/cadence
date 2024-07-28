@@ -9,15 +9,15 @@ import type {
     Interaction,
     PingInteraction
 } from 'eris';
-import { InteractionHandler } from '@interactions/InteractionHandler';
-import type { IInteractionHandler } from '@type/IInteractionHandler';
+import { InteractionManager } from '@interactions/InteractionManager';
+import type { IInteractionManager } from '@interactions/_types/IInteractionManager';
 import { join } from 'node:path';
 import { useLogger } from '@services/insights/LoggerService';
 
 export class InteractionCreateEventHandler implements IEventHandler {
     public name = ShardEvents.InteractionCreate;
     public once = false;
-    private _interactionHandler: IInteractionHandler = new InteractionHandler(
+    private _interactionHandler: IInteractionManager = new InteractionManager(
         useLogger(),
         join(__dirname, '..', '..', 'interactions')
     );
@@ -48,7 +48,11 @@ export class InteractionCreateEventHandler implements IEventHandler {
                 );
                 break;
             case 'PingInteraction':
-                await this._handlePingInteraction(logger, interaction as PingInteraction);
+                await this._interactionHandler.handlePingInteraction(
+                    logger,
+                    shardClient,
+                    interaction as PingInteraction
+                );
                 break;
             default:
                 logger.debug(`Received unknown interaction with ID: ${interaction.id}`);
@@ -56,11 +60,6 @@ export class InteractionCreateEventHandler implements IEventHandler {
         }
 
         logger.debug(`Handled interaction with ID: ${interaction.id}`);
-    }
-
-    private async _handlePingInteraction(logger: ILoggerService, interaction: PingInteraction): Promise<void> {
-        logger.debug(`Acknowledging ping interaction with ID ${interaction.id}`);
-        await interaction.pong();
     }
 }
 

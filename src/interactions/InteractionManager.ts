@@ -1,14 +1,14 @@
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { IShardClient } from '@type/IShardClient';
 import type { CommandInteraction, AutocompleteInteraction, ComponentInteraction, PingInteraction } from 'eris';
-import { MessageResponseFlags, type IInteractionHandler } from '@type/IInteractionHandler';
+import { MessageResponseFlags, type IInteractionManager } from '@interactions/_types/IInteractionManager';
 import type { ISlashCommand } from '@type/ISlashCommand';
 import { readdirSync } from 'node:fs';
 import path, { join } from 'node:path';
 import type { IMessageComponent } from '@type/IMessageComponent';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
 
-export class InteractionHandler implements IInteractionHandler {
+export class InteractionManager implements IInteractionManager {
     private _logger: ILoggerService;
     private _interactionsPath: string;
     private _slashCommands = new Map<string, ISlashCommand>();
@@ -19,6 +19,35 @@ export class InteractionHandler implements IInteractionHandler {
         this._logger = logger.updateContext({ module: 'interactions' }, false);
         this._interactionsPath = interactionsPath;
         this.loadInteractionHandlers();
+        this._logger.debug(`Using path '${this._interactionsPath}' for interaction handlers.`);
+    }
+
+    public loadInteractionHandlers(): void {
+        const directoryContents: string[] = readdirSync(this._interactionsPath).filter((file) => !file.endsWith('.js'));
+        if (directoryContents.length === 0) {
+            this._logger.error(`No interaction folders found in path: ${this._interactionsPath}`);
+            throw new Error(`No interaction folders found in path ${this._interactionsPath}. Exiting...`); // move validation to corevalidator
+        }
+
+        for (const name of directoryContents) {
+            switch (name) {
+                case 'slashcommand':
+                    this._logger.debug(`Loading slash command interaction handlers from '${name}' directory`);
+                    this._loadSlashCommandInteractionHandlers(path.join(this._interactionsPath, name));
+                    break;
+                case 'autocomplete':
+                    this._logger.debug(`Loading autocomplete interaction handlers from '${name}' directory`);
+                    this._loadAutocompleteInteractionHandlers(path.join(this._interactionsPath, name));
+                    break;
+                case 'component':
+                    this._logger.debug(`Loading component interaction handlers from '${name}' directory`);
+                    this._loadComponentInteractionHandlers(path.join(this._interactionsPath, name));
+                    break;
+                default:
+                    // Unknown interaction type folder, ignore
+                    break;
+            }
+        }
     }
 
     public async handleCommandInteraction(
@@ -88,39 +117,12 @@ export class InteractionHandler implements IInteractionHandler {
     }
 
     public async handlePingInteraction(
-        _logger: ILoggerService,
+        logger: ILoggerService,
         _shardClient: IShardClient,
-        _interaction: PingInteraction
+        interaction: PingInteraction
     ): Promise<void> {
-        await _interaction.pong();
-    }
-
-    public loadInteractionHandlers(): void {
-        const directoryContents: string[] = readdirSync(this._interactionsPath).filter((file) => !file.endsWith('.js'));
-        if (!directoryContents || directoryContents.length === 0) {
-            this._logger.error(`No interaction folders found in path: ${this._interactionsPath}`);
-            throw new Error(`No interaction folders found in path ${this._interactionsPath}. Exiting...`); // move validation to corevalidator
-        }
-
-        for (const name of directoryContents) {
-            switch (name) {
-                case 'slashcommand':
-                    this._logger.debug(`Loading slash command interaction handlers from '${name}' directory`);
-                    this._loadSlashCommandInteractionHandlers(path.join(this._interactionsPath, name));
-                    break;
-                case 'autocomplete':
-                    this._logger.debug(`Loading autocomplete interaction handlers from '${name}' directory`);
-                    this._loadAutocompleteInteractionHandlers(path.join(this._interactionsPath, name));
-                    break;
-                case 'component':
-                    this._logger.debug(`Loading component interaction handlers from '${name}' directory`);
-                    this._loadComponentInteractionHandlers(path.join(this._interactionsPath, name));
-                    break;
-                default:
-                    // Unknown interaction type folder, ignore
-                    break;
-            }
-        }
+        logger.debug(`Acknowledging ping interaction with ID ${interaction.id}`);
+        await interaction.pong();
     }
 
     private _loadSlashCommandInteractionHandlers(folderPath: string): void {
