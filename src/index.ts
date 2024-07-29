@@ -18,6 +18,8 @@ import { join } from 'node:path';
 import { DeploymentDispatcher } from '@core/DeploymentDispatcher';
 import type { HealthCheckConfig, ShardClientConfig } from '@config/types';
 
+//import { startClusterManager } from '@core/ClusterManager';
+
 // Get logger instance
 const logger = useLogger();
 
@@ -47,6 +49,11 @@ const obs = new PerformanceObserver((items) => {
 });
 obs.observe({ type: 'measure' });
 
+// From WIP clustering implementation
+//const token = process.env.DISCORD_BOT_TOKEN || '';
+//const totalShards = config.get<number>('clusterConfig.totalShards') || 10; // Total number of shards
+//const shardsPerCluster = config.get<number>('clusterConfig.shardsPerCluster') || 2; // Number of shards each cluster should handle
+
 // Application startup logic
 const startApplication = async (): Promise<void> => {
     logger.info('Starting application...');
@@ -56,6 +63,7 @@ const startApplication = async (): Promise<void> => {
     await coreValidator.checkDependencies();
     await coreValidator.checkApplicationVersion();
     await shardClient.start();
+    //startClusterManager(token, totalShards, shardsPerCluster);
     await deploymentDispatcher.refreshSlashCommands();
     eventManager.loadEventHandlers();
     healthCheckService.start(healthCheckConfig.interval);
