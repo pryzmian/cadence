@@ -9,6 +9,7 @@ export class ShardClient implements IShardClient {
     private _shardClientConfig: ShardClientConfig;
     private _shardClient: Client;
     private _applicationId: string;
+    private _maxShards: ShardClientConfig['maxShards'];
 
     constructor(logger: ILoggerService, shardClientConfig: ShardClientConfig) {
         this._logger = logger;
@@ -31,11 +32,12 @@ export class ShardClient implements IShardClient {
             id: this._applicationId,
             flags: 1 << 23
         };
+
+        this._maxShards = this._shardClientConfig.maxShards ?? 'auto';
     }
 
     public async start() {
         this._logger.debug('Starting shard client...');
-
         try {
             this._logger.debug('Connecting client to Discord...');
             await this._shardClient.connect();
@@ -50,12 +52,11 @@ export class ShardClient implements IShardClient {
             this._logger.error(error, 'An error occurred while connecting to the Discord gateway.');
             this._logger.warn('Make sure the DISCORD_BOT_TOKEN environment variable is set and valid.');
         }
-
         this._logger.debug('Successfully started shard client.');
     }
 
     public registerEventListener(eventName: string, once: boolean, listener: () => void): void {
-        this._logger.debug(`Registering ShardClient event listener for '${eventName}' event...`);
+        this._logger.debug(`Registering event listener for '${eventName}' event...`);
         once ? this._shardClient.once(eventName, listener) : this._shardClient.on(eventName, listener);
     }
 
@@ -69,33 +70,19 @@ export class ShardClient implements IShardClient {
         this._shardClient.setMaxListeners(maxListeners);
     }
 
-    public getShardId(guildId: string | undefined): number {
-        if (!guildId) {
-            return -1;
-        }
-
-        const guild = this._shardClient.guilds.get(guildId);
-        if (guild) {
-            return guild.shard.id;
-        }
-
-        return -1;
+    public getShardId(guildId?: string): number {
+        return guildId ? this._shardClient.guilds.get(guildId)?.shard.id ?? -1 : -1;
     }
 
-    // Only count of shards that this client manages
     public getShardCount(): number {
         return this._shardClient.shards.size;
     }
 
-    // Should be shard count not only for current shard client but all clusters (global)
-    // If maxShards is 'auto' or undefined, then this will return the shard count for this shard client only as we assume there's no clustering
     public getTotalShardCount(): number {
-        let totalShardCount = this._shardClientConfig.maxShards === 'auto' ? 0 : this._shardClientConfig.maxShards ?? 0;
-        if (totalShardCount === 0) {
-            totalShardCount = this._shardClient.shards.size;
+        if (this._maxShards === 'auto') {
+            return this._shardClient.shards.size;
         }
-
-        return totalShardCount;
+        return this._maxShards;
     }
 
     public async deployCommand(command: ISlashCommand): Promise<Eris.ApplicationCommand> {
