@@ -1,5 +1,10 @@
 import type { ClientOptions } from 'eris';
 
+type ClusterConfig = {
+    globalShardCount: number | 'auto';
+    shardsPerCluster: number | 'auto';
+};
+
 type ShardClientConfig = {
     maxShards: number | 'auto';
     shardConcurrency?: number | 'auto';

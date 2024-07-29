@@ -1,4 +1,9 @@
-import type { HealthCheckConfig, LoggerServiceConfig, ShardClientConfig } from './types';
+import type { ClusterConfig, HealthCheckConfig, LoggerServiceConfig, ShardClientConfig } from './types';
+
+export const clusterConfig: ClusterConfig = {
+    globalShardCount: 'auto',
+    shardsPerCluster: 'auto'
+};
 
 export const shardClientConfig: ShardClientConfig = {
     intents: ['guilds', 'guildVoiceStates'],
