@@ -6,6 +6,7 @@ Number.prototype.formatAsCompact = function (
         { value: 1_000_000_000, symbol: 'B' }
     ]
 ): string {
+    // Sort thresholds from largest to smallest
     thresholds.sort((a, b) => b.value - a.value);
 
     const absNumber = Math.abs(this);
@@ -14,17 +15,16 @@ Number.prototype.formatAsCompact = function (
     for (const { value, symbol } of thresholds) {
         if (absNumber >= value) {
             const compactNumber = this / value;
+            // Determine the number of decimal places
             const roundedCompactNumber = Math.round(compactNumber * 10) / 10;
-            const isWholeNumber = roundedCompactNumber % 1 === 0;
-
-            // Use up to one decimal place if not a whole compact number and less than 10
-            if (isWholeNumber) {
+            const isWholeNumber = Math.abs(roundedCompactNumber) % 1 === 0;
+            // If the number is a whole number or very close to it, round it to an integer
+            if (isWholeNumber || Math.abs(roundedCompactNumber) >= 10) {
                 return `${Math.round(compactNumber)}${symbol}`;
             }
-            if (roundedCompactNumber < 10) {
-                return `${roundedCompactNumber.toFixed(1)}${symbol}`;
-            }
-            return `${Math.round(roundedCompactNumber)}${symbol}`;
+
+            // Otherwise, use one decimal place if it's less than 10
+            return `${roundedCompactNumber}${symbol}`;
         }
     }
 
@@ -33,10 +33,6 @@ Number.prototype.formatAsCompact = function (
 };
 
 Number.prototype.formatWithSeparator = function (this: number, separator = ' '): string {
-    if (typeof this !== 'number') {
-        throw new Error('Required parameter "number" is not a number.');
-    }
-
     const integerString = Math.round(this).toString();
 
     // Add the separator every three digits using a regular expression
