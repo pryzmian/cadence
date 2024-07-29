@@ -472,9 +472,52 @@ describe('CoreValidator', () => {
             expect(mockLoggerService.debug).toHaveBeenCalledWith('Successfully checked application version.');
         });
 
+        it('should return "undefined" if the latest version tag_name is null', async () => {
+            // Arrange
+            mockFetch = jest.fn((url) => {
+                if (url === 'https://api.github.com/repos/user/repo/releases/latest') {
+                    return Promise.resolve({
+                        json: jest.fn().mockResolvedValue({
+                            tag_name: null
+                        })
+                    });
+                }
+                return Promise.resolve({
+                    json: jest.fn().mockResolvedValue({
+                        message: 'Not Found',
+                        documentation_url: 'https://docs.github.com/rest/releases/releases#get-the-latest-release',
+                        status: '404'
+                    })
+                });
+            }) as unknown as typeof fetch;
+            updateTestSetup();
+
+            // Act
+            await coreValidator.checkApplicationVersion();
+
+            // Assert
+            expect(mockLoggerService.warn).toHaveBeenCalledWith('Failed to fetch the latest version from GitHub.');
+        });
+
         it('should check the application version and warn if out of date', async () => {
             // Arrange
             mockLatestVersion = '2.0.0';
+            mockFetch = jest.fn((url) => {
+                if (url === 'https://api.github.com/repos/user/repo/releases/latest') {
+                    return Promise.resolve({
+                        json: jest.fn().mockResolvedValue({
+                            tag_name: mockLatestVersion
+                        })
+                    });
+                }
+                return Promise.resolve({
+                    json: jest.fn().mockResolvedValue({
+                        message: 'Not Found',
+                        documentation_url: 'https://docs.github.com/rest/releases/releases#get-the-latest-release',
+                        status: '404'
+                    })
+                });
+            }) as unknown as typeof fetch;
             updateTestSetup();
 
             // Act
