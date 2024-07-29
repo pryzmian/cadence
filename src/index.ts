@@ -72,12 +72,6 @@ try {
 
         performance.mark('startApplication:end');
         performance.measure('startApplication', 'startApplication:start', 'startApplication:end');
-
-        // TESTING - fetch() memory leak
-        setInterval(() => {
-            logger.debug('Fetching GitHub repository...');
-            fetch('https://api.github.com/repos/mariusbegby/cadence');
-        }, 1000);
     })();
 } catch (error: unknown) {
     logger.error(error, 'An error occurred while starting the application. Exiting...');
