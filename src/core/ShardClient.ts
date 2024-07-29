@@ -56,7 +56,7 @@ export class ShardClient implements IShardClient {
     }
 
     public registerEventListener(eventName: string, once: boolean, listener: () => void): void {
-        this._logger.debug(`Registering event listener for '${eventName}' event...`);
+        this._logger.debug(`Registering ShardClient event listener for '${eventName}' event...`);
         once ? this._shardClient.once(eventName, listener) : this._shardClient.on(eventName, listener);
     }
 
@@ -78,6 +78,8 @@ export class ShardClient implements IShardClient {
         return this._shardClient.shards.size;
     }
 
+    // Should be shard count not only for current shard client but all clusters (global)
+    // If maxShards is 'auto' or undefined, then this will return the shard count for this shard client only as we assume there's no clustering
     public getTotalShardCount(): number {
         if (this._maxShards === 'auto') {
             return this._shardClient.shards.size;
