@@ -42,7 +42,6 @@
         }
     },
     "scripts": {
-        "postinstall": "pnpm dlx prisma generate",
         "prebuild": "pnpm toc",
         "toc": "i18next-resources-for-ts interface -i ./locales/en -o ./locales/resources.d.ts",
         "build": "tsc && tsc-alias -p tsconfig.json",
@@ -55,15 +54,15 @@
     },
     "dependencies": {
         "@discord-player/extractor": "^4.5.0",
-        "@prisma/client": "^5.17.0",
         "cluster": "^0.7.7",
         "config": "^3.3.12",
         "discord-player": "^6.7.0",
         "discord-player-youtubei": "^1.2.0",
         "dotenv": "^16.4.5",
+        "drizzle-orm": "^0.32.1",
         "eris": "^0.17.2",
         "i18next": "^23.12.2",
-        "i18next-fs-backend": "^2.3.1",
+        "i18next-fs-backend": "^2.3.2",
         "mediaplex": "^0.0.9",
         "pino": "^9.3.2"
     },

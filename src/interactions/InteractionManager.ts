@@ -3,7 +3,7 @@ import type { IShardClient } from '@type/IShardClient';
 import type { CommandInteraction, AutocompleteInteraction, ComponentInteraction, PingInteraction } from 'eris';
 import { MessageResponseFlags, type IInteractionManager } from '@interactions/_types/IInteractionManager';
 import type { ISlashCommand } from '@type/ISlashCommand';
-import { readdirSync } from 'node:fs';
+import fs from 'node:fs';
 import path, { join } from 'node:path';
 import type { IMessageComponent } from '@type/IMessageComponent';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
@@ -14,16 +14,20 @@ export class InteractionManager implements IInteractionManager {
     private _slashCommands = new Map<string, ISlashCommand>();
     private _autocompleteCommands = new Map<string, IAutocompleteCommand>();
     private _components = new Map<string, IMessageComponent>();
+    private _fs: typeof fs;
 
-    constructor(logger: ILoggerService, interactionsPath: string) {
+    constructor(logger: ILoggerService, interactionsPath: string, fileSystemModule = fs) {
         this._logger = logger.updateContext({ module: 'interactions' }, false);
         this._interactionsPath = interactionsPath;
+        this._fs = fileSystemModule;
         this.loadInteractionHandlers();
         this._logger.debug(`Using path '${this._interactionsPath}' for interaction handlers.`);
     }
 
     public loadInteractionHandlers(): void {
-        const directoryContents: string[] = readdirSync(this._interactionsPath).filter((file) => !file.endsWith('.js'));
+        const directoryContents: string[] = this._fs
+            .readdirSync(this._interactionsPath)
+            .filter((file) => !file.endsWith('.js'));
         if (directoryContents.length === 0) {
             this._logger.error(`No interaction folders found in path: ${this._interactionsPath}`);
             throw new Error(`No interaction folders found in path ${this._interactionsPath}. Exiting...`); // move validation to corevalidator
@@ -44,7 +48,7 @@ export class InteractionManager implements IInteractionManager {
                     this._loadComponentInteractionHandlers(path.join(this._interactionsPath, name));
                     break;
                 default:
-                    // Unknown interaction type folder, ignore
+                    this._logger.debug(`Unknown interaction type folder: '${name}', ignoring...`);
                     break;
             }
         }
@@ -130,7 +134,7 @@ export class InteractionManager implements IInteractionManager {
         const interactionFiles = this._getInteractionFileNames(folderPath);
         for (const file of interactionFiles) {
             const slashCommand: ISlashCommand = require(join(folderPath, file));
-            if (!slashCommand.data.name || !slashCommand.run) {
+            if (!slashCommand.data || !slashCommand.data.name || !slashCommand.run) {
                 this._logger.error(`Slash command '${file}' does not implement ISlashCommand properly. Skipping...`);
                 continue;
             }
@@ -147,15 +151,15 @@ export class InteractionManager implements IInteractionManager {
         const interactionFiles = this._getInteractionFileNames(folderPath);
         for (const file of interactionFiles) {
             const autocompleteCommand: IAutocompleteCommand = require(join(folderPath, file));
-            if (!autocompleteCommand.name || !autocompleteCommand.run) {
+            if (!autocompleteCommand.data || !autocompleteCommand.data.name || !autocompleteCommand.run) {
                 this._logger.error(
                     `Autocomplete command '${file}' does not implement IAutocompleteCommand properly. Skipping...`
                 );
                 continue;
             }
-            this._logger.debug(`Autocomplete command '${autocompleteCommand.name}' loaded.`);
+            this._logger.debug(`Autocomplete command '${autocompleteCommand.data.name}' loaded.`);
 
-            autocompleteCommands.set(autocompleteCommand.name, autocompleteCommand);
+            autocompleteCommands.set(autocompleteCommand.data.name, autocompleteCommand);
         }
 
         this._autocompleteCommands = autocompleteCommands;
@@ -166,20 +170,20 @@ export class InteractionManager implements IInteractionManager {
         const interactionFiles = this._getInteractionFileNames(folderPath);
         for (const file of interactionFiles) {
             const component: IMessageComponent = require(join(folderPath, file));
-            if (!component.customId || !component.run) {
+            if (!component.data || !component.data.custom_id || !component.run) {
                 this._logger.error(`Component '${file}' does not implement IMessageComponent properly. Skipping...`);
                 continue;
             }
-            this._logger.debug(`Component '${component.customId}' loaded.`);
+            this._logger.debug(`Component '${component.data.custom_id}' loaded.`);
 
-            components.set(component.customId, component);
+            components.set(component.data.custom_id, component);
         }
 
         this._components = components;
     }
 
     private _getInteractionFileNames(folderPath: string): string[] {
-        return readdirSync(folderPath).filter((file) => file.endsWith('.js'));
+        return this._fs.readdirSync(folderPath).filter((file) => file.endsWith('.js'));
     }
 
     private _getInteractionLogger(
