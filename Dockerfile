@@ -23,7 +23,6 @@ COPY tsconfig.json ./
 COPY src/ ./src/ 
 COPY config/ ./config/ 
 COPY locales/ ./locales/ 
-COPY prisma/ ./prisma/
 
 # Install node dependencies
 RUN pnpm install
@@ -32,7 +31,7 @@ RUN pnpm install
 RUN pnpm install mediaplex
 
 # Build the application
-RUN pnpm build && pnpm dlx prisma generate
+RUN pnpm build
 
 # Cleanup unnecessary packages to minimize image size
 RUN apt-get purge -y python3 && apt-get autoremove -y
