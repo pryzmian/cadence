@@ -4,7 +4,10 @@ import type { AutocompleteInteraction } from 'eris';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
 
 export class PlayAutocompleteCommand implements IAutocompleteCommand {
-    public name = 'help';
+    public data = {
+        name: 'play',
+        description: 'play command description'
+    };
     public aliases = ['h'];
 
     public async run(
@@ -12,7 +15,7 @@ export class PlayAutocompleteCommand implements IAutocompleteCommand {
         _shardClient: IShardClient,
         interaction: AutocompleteInteraction
     ): Promise<void> {
-        logger.debug(`Handling '${this.name}' autocomplete command...`);
+        logger.debug(`Handling '${this.data.name}' autocomplete command...`);
         await interaction.result([
             {
                 name: `name: ${interaction.data.name}`,

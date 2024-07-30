@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import fs from 'node:fs';
 import path, { join } from 'node:path';
 import type { IEventHandler } from '@type/IEventHandler';
 import type { IEventManager } from '@events/_types/IEventManager';
@@ -9,17 +9,21 @@ export class EventManager implements IEventManager {
     private _logger: ILoggerService;
     private _shardClient: ShardClient;
     private _eventsPath: string;
+    private _fs: typeof fs;
 
-    constructor(logger: ILoggerService, shardClient: ShardClient, eventsPath: string) {
+    constructor(logger: ILoggerService, shardClient: ShardClient, eventsPath: string, fileSystemModule = fs) {
         this._logger = logger.updateContext({ module: 'events' });
         this._shardClient = shardClient;
         this._eventsPath = eventsPath;
+        this._fs = fileSystemModule;
         this._setMaxListeners(this._shardClient.getShardCount());
         this._logger.debug(`Using path '${this._eventsPath}' for event handlers.`);
     }
 
     public loadEventHandlers(): void {
-        const directoryContents: string[] = readdirSync(this._eventsPath).filter((file) => !file.endsWith('.js'));
+        const directoryContents: string[] = this._fs
+            .readdirSync(this._eventsPath)
+            .filter((file) => !file.endsWith('.js'));
         if (directoryContents.length === 0) {
             this._logger.error(`No event folders found in path: ${this._eventsPath}`);
             throw new Error(`No event folders found in path ${this._eventsPath}. Exiting...`); // move validation to corevalidator
@@ -104,7 +108,7 @@ export class EventManager implements IEventManager {
     }
 
     private _getEventFileNames(folderPath: string): string[] {
-        return readdirSync(folderPath).filter((file) => file.endsWith('.js'));
+        return this._fs.readdirSync(folderPath).filter((file) => file.endsWith('.js'));
     }
 
     private _setMaxListeners(maxListeners: number): void {
