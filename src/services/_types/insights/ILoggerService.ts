@@ -12,6 +12,8 @@ export interface ILoggerService {
 
     getLogger(): PinoLogger;
 
+    getExecutionId(): string;
+
     debug(contextObject: unknown, message?: string): void;
 
     info(contextObject: unknown, message?: string): void;

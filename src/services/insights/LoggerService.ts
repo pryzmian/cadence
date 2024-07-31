@@ -32,9 +32,12 @@ export const useLogger = (context?: LogContext): ILoggerService => {
 export class LoggerService implements ILoggerService {
     private _logger: PinoLogger;
     private _logConfig: LoggerServiceConfig;
+    private _executionId: string;
 
     constructor(context: LogContext, parent?: ILoggerService) {
         this._logConfig = config.get<LoggerServiceConfig>('loggerServiceConfig');
+
+        const executionId = context.executionId || generateExecutionId()
 
         if (parent) {
             this._logger = parent.getLogger().child(context);
@@ -44,19 +47,26 @@ export class LoggerService implements ILoggerService {
                 timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
                 base: {
                     environment: process.env.NODE_ENV || 'development',
-                    executionId: context.executionId || generateExecutionId(),
+                    executionId: executionId,
                     ...context
                 }
             };
+
 
             const transport: DestinationStream = pino.transport({ targets: this._generateTransportTargets() });
 
             this._logger = pino(pinoOptions, transport);
         }
+
+        this._executionId = executionId;
     }
 
     public getLogger(): PinoLogger {
         return this._logger;
+    }
+
+    public getExecutionId(): string {
+        return this._executionId;
     }
 
     public updateContext(context: LogContext, newExecutionId = true): ILoggerService {
