@@ -22,6 +22,10 @@ export enum ShardEvents {
     Error = 'error' // message, shardId
 }
 
+export enum PlayerEvents {
+    PlayerError = 'playerError', // queue, error
+}
+
 export enum ProcessEvents {
     UncaughtException = 'uncaughtException', // error
     UnhandledRejection = 'unhandledRejection' // error

@@ -6,5 +6,8 @@ export class MockLoggerService implements ILoggerService {
     warn = jest.fn();
     error = jest.fn();
     getLogger = jest.fn().mockReturnValue({ child: jest.fn() });
+    getExecutionId(): string {
+        return 'mockExecutionId';
+    }
     updateContext = jest.fn().mockReturnThis();
 }

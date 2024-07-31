@@ -1,5 +1,5 @@
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
-import type { IShardClient } from '@core/_types/IShardClient';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IShardClient } from '@type/IShardClient';
 import type { AutocompleteInteraction } from 'eris';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
 
