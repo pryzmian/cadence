@@ -44,7 +44,7 @@ export class EventManager implements IEventManager {
                     this._loadProcessEventHandlers(path.join(this._eventsPath, name));
                     break;
                 default:
-                    // Unknown folder, ignore
+                    this._logger.debug(`Unknown event type folder: '${name}', ignoring...`);
                     break;
             }
         }
@@ -68,15 +68,6 @@ export class EventManager implements IEventManager {
     private _loadPlayerEventHandlers(_folderPath: string): void {
         this._logger.warn('Loading player event handlers is not implemented yet.');
         return;
-        /*
-        const eventHandlerModules = this._parseEventsFromFolder(folderPath);
-        for (const eventHandler of eventHandlerModules) {
-            // TODO: Register player event listeners
-            this._playerService.registerEventListener(eventHandler.eventName, eventHandler.triggerOnce, (...args) => {
-                eventHandler.handleEvent(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
-            });
-        }
-        */
     }
 
     private _loadProcessEventHandlers(folderPath: string): void {
@@ -84,11 +75,11 @@ export class EventManager implements IEventManager {
         for (const eventHandler of eventHandlerModules) {
             eventHandler.once
                 ? process.once(eventHandler.name, (...args) => {
-                      eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
-                  })
+                    eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                })
                 : process.on(eventHandler.name, (...args) => {
-                      eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
-                  });
+                    eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                });
         }
     }
 
