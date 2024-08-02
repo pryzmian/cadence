@@ -10,7 +10,8 @@ export class StorageClient implements IStorageClient {
 
     async ping(): Promise<boolean> {
         this._logger.debug('Pinging storage client...');
-        throw new Error('Not implemented');
+        this._logger.warn('StorageClient health check not implemented yet');
+        return false;
 
         // Connect to DB and execute query to check if it's healthy
         // Return true if successful, false otherwise

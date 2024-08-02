@@ -1,7 +1,7 @@
-import { ShardEvents } from '@type/IEventHandler';
-import type { IEventHandler } from '@type/IEventHandler';
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IShardClient } from '@core/_types/IShardClient';
+import type { ILoggerService } from '@services/_types/insights/ILoggerService';
+import type { IEventHandler } from '@type/IEventHandler';
+import { ShardEvents } from '@type/IEventHandler';
 import type { Guild } from 'eris';
 
 export class GuildCreateEventHandler implements IEventHandler {

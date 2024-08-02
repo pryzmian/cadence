@@ -1,19 +1,21 @@
-import Eris, { Client } from 'eris';
 import type { ShardClientConfig } from '@config/types';
+import type { IShardClient } from '@core/_types/IShardClient';
+import { EventManager } from '@events/EventManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
 import type { ISlashCommand } from '@type/ISlashCommand';
+import Eris, { Client } from 'eris';
+import { join } from 'node:path';
 
 export class ShardClient implements IShardClient {
     private _logger: ILoggerService;
     private _shardClientConfig: ShardClientConfig;
     private _shardClient: Client;
     private _applicationId: string;
-    private _maxShards: ShardClientConfig['maxShards'];
 
     constructor(logger: ILoggerService, shardClientConfig: ShardClientConfig) {
         this._logger = logger;
         this._shardClientConfig = shardClientConfig;
+        this._logger.debug(this._shardClientConfig, 'Shard client config');
 
         const token = process.env.DISCORD_BOT_TOKEN || '';
         const applicationId = process.env.DISCORD_APPLICATION_ID || '';
@@ -32,11 +34,12 @@ export class ShardClient implements IShardClient {
             id: this._applicationId,
             flags: 1 << 23
         };
-
-        this._maxShards = this._shardClientConfig.maxShards ?? 'auto';
     }
 
     public async start() {
+        const eventsPath = join(__dirname, '..', 'events');
+        const eventManager = new EventManager(this._logger, this, eventsPath);
+
         this._logger.debug('Starting shard client...');
         try {
             this._logger.debug('Connecting client to Discord...');
@@ -53,6 +56,8 @@ export class ShardClient implements IShardClient {
             this._logger.warn('Make sure the DISCORD_BOT_TOKEN environment variable is set and valid.');
         }
         this._logger.debug('Successfully started shard client.');
+
+        eventManager.loadEventHandlers();
     }
 
     public registerEventListener(eventName: string, once: boolean, listener: () => void): void {
@@ -81,10 +86,11 @@ export class ShardClient implements IShardClient {
     // Should be shard count not only for current shard client but all clusters (global)
     // If maxShards is 'auto' or undefined, then this will return the shard count for this shard client only as we assume there's no clustering
     public getTotalShardCount(): number {
-        if (this._maxShards === 'auto') {
+        // NEED TO UPDATE FOR CLUSTERING
+        if (this._shardClientConfig.maxShards === 'auto') {
             return this._shardClient.shards.size;
         }
-        return this._maxShards;
+        return this._shardClientConfig.maxShards ?? 1;
     }
 
     public async deployCommand(command: ISlashCommand): Promise<Eris.ApplicationCommand> {

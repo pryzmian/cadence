@@ -1,7 +1,12 @@
-import { ShardEvents } from '@type/IEventHandler';
+import type { IShardClient } from '@core/_types/IShardClient';
+import { InteractionManager } from '@interactions/InteractionManager';
+import type { IInteractionManager } from '@interactions/_types/IInteractionManager';
+import { useLogger } from '@services/insights/LoggerService';
 import type { IEventHandler } from '@type/IEventHandler';
+import { ShardEvents } from '@type/IEventHandler';
+import { MessageResponseFlags } from '@type/IInteractionManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
+import { EmbedBuilder } from '@utilities/EmbedBuilder';
 import {
     Constants,
     type AutocompleteInteraction,
@@ -10,12 +15,7 @@ import {
     type Interaction,
     type PingInteraction
 } from 'eris';
-import { InteractionManager } from '@interactions/InteractionManager';
-import type { IInteractionManager } from '@interactions/_types/IInteractionManager';
 import { join } from 'node:path';
-import { useLogger } from '@services/insights/LoggerService';
-import { MessageResponseFlags } from '@type/IInteractionManager';
-import { EmbedBuilder } from '@utilities/EmbedBuilder';
 
 export class InteractionCreateEventHandler implements IEventHandler {
     public name = ShardEvents.InteractionCreate;

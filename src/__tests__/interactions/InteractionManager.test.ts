@@ -1,7 +1,7 @@
 import { InteractionManager } from '@interactions/InteractionManager';
 import { MockLoggerService } from '@mocks/MockLoggerService';
 import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
+import type { IShardClient } from '@core/_types/IShardClient';
 import type { CommandInteraction, AutocompleteInteraction, ComponentInteraction, PingInteraction } from 'eris';
 import fs from 'node:fs';
 import path, { join } from 'node:path';

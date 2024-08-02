@@ -1,24 +1,20 @@
-import type { ClientOptions } from 'eris';
-
-type ClusterConfig = {
+export type WorkerManagerConfig = {
     globalShardCount: number | 'auto';
-    shardsPerCluster: number | 'auto';
+    workerCount: number | 'auto';
 };
 
-type ShardClientConfig = {
-    maxShards: number | 'auto';
-    shardConcurrency?: number | 'auto';
-    firstShardID?: number | undefined;
-    lastShardID?: number | undefined;
-} & ClientOptions;
+export type ShardClientConfig = {} & Omit<
+    ClientOptions,
+    'shardConcurrency' | 'firstShardID' | 'lastShardID' | 'maxShards'
+>;
 
-type LoggerServiceConfig = {
+export type LoggerServiceConfig = {
     logLevel: 'debug' | 'info' | 'warn' | 'error';
     pushLogsToLoki: boolean;
     prettyConsoleFormat: boolean;
     prettyConsoleIgnoreFields: string[];
 };
 
-type HealthCheckConfig = {
+export type HealthCheckConfig = {
     interval: number;
 };

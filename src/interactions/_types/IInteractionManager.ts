@@ -1,6 +1,6 @@
+import type { IShardClient } from '@core/_types/IShardClient';
 import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
-import type { CommandInteraction, AutocompleteInteraction, ComponentInteraction, PingInteraction } from 'eris';
+import type { AutocompleteInteraction, CommandInteraction, ComponentInteraction, PingInteraction } from 'eris';
 
 export enum MessageResponseFlags {
     Ephemeral = 64
