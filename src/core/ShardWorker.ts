@@ -1,29 +1,59 @@
-/*
+import config from 'config';
+import '@utilities/FormattingUtility';
+
 import type { ShardClientConfig } from '@config/types';
-import { ShardClient } from '@core/ShardClient';
 import { useLogger } from '@services/insights/LoggerService';
+import { parentPort, workerData } from 'node:worker_threads';
+import { ShardClient } from './ShardClient';
 
-export interface ShardWorkerOptions {
-    token: string;
-    firstShardId: number;
-    lastShardId: number;
-    maxShards: number;
-}
+export type ShardWorkerConfig = {
+    maxShards: number | 'auto';
+    shardConcurrency?: number | 'auto';
+    firstShardID?: number | undefined;
+    lastShardID?: number | undefined;
+};
 
-export function startShardWorker(options: ShardWorkerOptions) {
-    const logger = useLogger();
+const logger = useLogger();
 
-    const shardClientConfig: ShardClientConfig = {
-        intents: ['guilds', 'guildMessages'],
-        shardConcurrency: 'auto',
-        firstShardID: options.firstShardId,
-        lastShardID: options.lastShardId,
-        maxShards: options.maxShards
-    };
-    const shardClient = new ShardClient(logger, shardClientConfig);
+const obs = new PerformanceObserver((items) => {
+    for (const entry of items.getEntries()) {
+        if (!entry.name.includes('benchmark')) {
+            logger.debug(`[Metrics] Measurement '${entry.name}' took ${entry.duration.toFixed(2)}ms`);
+        }
+    }
+});
+obs.observe({ type: 'measure' });
 
-    shardClient.start().catch((error) => {
-        logger.error(error, 'An error occurred while starting the ShardClient.');
+// Shard worker startup logic
+const startShardWorker = async (): Promise<void> => {
+    logger.info('Starting shard worker...');
+
+    const shardWorkerConfig = workerData as ShardWorkerConfig;
+    const shardClientConfig: ShardClientConfig = config.get<ShardClientConfig>('shardClientConfig');
+    const shardClient = new ShardClient(logger, {
+        ...shardWorkerConfig,
+        ...shardClientConfig
     });
+    await shardClient.start();
+
+    logger.info('Shard worker started successfully.');
+
+    parentPort?.on('message', (message) => {
+        logger.debug(`Message received from parent process: ${message}`);
+    });
+};
+
+// Start the shard worker (triggered when worker is spawned)
+try {
+    (async () => {
+        performance.mark('startShardClient:start');
+
+        await startShardWorker();
+
+        performance.mark('startShardClient:end');
+        performance.measure('startShardClient', 'startShardClient:start', 'startShardClient:end');
+    })();
+} catch (error: unknown) {
+    logger.error(error, 'An error occurred while starting the shard worker. Exiting...');
+    process.exit(1);
 }
-*/

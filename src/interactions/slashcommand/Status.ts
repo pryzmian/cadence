@@ -1,6 +1,6 @@
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IShardClient } from '@core/_types/IShardClient';
 import type { ISlashCommand, SlashCommandData } from '@interactions/_types/ISlashCommand';
+import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { CommandInteraction } from 'eris';
 
 export class StatusCommand implements ISlashCommand {

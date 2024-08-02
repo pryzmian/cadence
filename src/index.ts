@@ -1,40 +1,35 @@
 // Load environment variables from .env file
 import 'dotenv/config';
-import '@utilities/FormattingUtility';
 
 import config from 'config';
 import packageJson from '../package.json';
 
+import type { HealthCheckConfig, WorkerManagerConfig } from '@config/types';
 import { CoreValidator } from '@core/CoreValidator';
-import { HealthCheckService } from '@services/insights/HealthCheckService';
-import { ShardClient } from '@core/ShardClient';
-import { StorageClient } from '@services/storage/StorageClient';
+import { WorkerManager } from '@core/WorkerManager';
 import { StorageClientHealth } from '@services/insights/health-checks/StorageClientHealth';
+import { HealthCheckService } from '@services/insights/HealthCheckService';
 import { useLogger } from '@services/insights/LoggerService';
+import { StorageClient } from '@services/storage/StorageClient';
 import { exec } from 'node:child_process';
-import { performance, PerformanceObserver } from 'node:perf_hooks';
-import { EventManager } from '@events/EventManager';
 import { join } from 'node:path';
-import { DeploymentDispatcher } from '@core/DeploymentDispatcher';
-import type { HealthCheckConfig, ShardClientConfig } from '@config/types';
-
-//import { startClusterManager } from '@core/ClusterManager';
+import { performance, PerformanceObserver } from 'node:perf_hooks';
+//import { DeploymentDispatcher } from '@core/DeploymentDispatcher';
 
 // Get logger instance
 const logger = useLogger();
 
 // Initialize core components
-const shardClientConfig = config.get<ShardClientConfig>('shardClientConfig');
-const healthCheckConfig = config.get<HealthCheckConfig>('healthCheckConfig');
 const coreValidator = new CoreValidator(logger, config, exec, fetch, packageJson);
-const shardClient = new ShardClient(logger, shardClientConfig);
-const interactionsPath = join(__dirname, 'interactions');
-const deploymentDispatcher = new DeploymentDispatcher(logger, shardClient, interactionsPath);
+const workerPath = join(__dirname, 'core', 'ShardWorker');
+const workerManagerconfig = config.get<WorkerManagerConfig>('workerManagerConfig');
+const workerManager = new WorkerManager(logger, workerPath, workerManagerconfig);
+//const interactionsPath = join(__dirname, 'interactions');
+//const deploymentDispatcher = new DeploymentDispatcher(logger, shardClient, interactionsPath); // need to update for worker threads...
 
 // Initialize services
 const storageClient = new StorageClient(logger);
-const eventsPath = join(__dirname, 'events');
-const eventManager = new EventManager(logger, shardClient, eventsPath);
+const healthCheckConfig = config.get<HealthCheckConfig>('healthCheckConfig');
 const healthCheckService = new HealthCheckService(logger);
 healthCheckService.registerHealthCheck(new StorageClientHealth(storageClient));
 
@@ -49,11 +44,6 @@ const obs = new PerformanceObserver((items) => {
 });
 obs.observe({ type: 'measure' });
 
-// From WIP clustering implementation
-//const token = process.env.DISCORD_BOT_TOKEN || '';
-//const totalShards = config.get<number>('clusterConfig.totalShards') || 10; // Total number of shards
-//const shardsPerCluster = config.get<number>('clusterConfig.shardsPerCluster') || 2; // Number of shards each cluster should handle
-
 // Application startup logic
 const startApplication = async (): Promise<void> => {
     logger.info('Starting application...');
@@ -62,16 +52,13 @@ const startApplication = async (): Promise<void> => {
     await coreValidator.validateConfiguration();
     await coreValidator.checkDependencies();
     await coreValidator.checkApplicationVersion();
-    await shardClient.start();
-    //startClusterManager(token, totalShards, shardsPerCluster);
-    await deploymentDispatcher.refreshSlashCommands();
-    eventManager.loadEventHandlers();
+    //await deploymentDispatcher.refreshSlashCommands();
+    await workerManager.start();
     healthCheckService.start(healthCheckConfig.interval);
-
     logger.info('Application started successfully.');
 };
 
-// Start the application
+// Start the application (triggered when main process is started)
 try {
     (async () => {
         performance.mark('startApplication:start');

@@ -1,6 +1,8 @@
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IShardClient } from '@core/_types/IShardClient';
+import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { ISlashCommand, SlashCommandData } from '@type/ISlashCommand';
+import { EmbedBuilder } from '@utilities/EmbedBuilder';
+import { resolveColor } from '@utilities/EmbedUtilities';
 import type { CommandInteraction } from 'eris';
 
 export class HelpCommand implements ISlashCommand {
@@ -15,7 +17,14 @@ export class HelpCommand implements ISlashCommand {
         interaction: CommandInteraction
     ): Promise<void> {
         logger.debug(`Handling '${this.data.name}' command...`);
-        await interaction.createMessage("Sorry, can't help ya :/");
+
+        const embed = new EmbedBuilder()
+            .setColor(resolveColor('RANDOM'))
+            .setDescription(`**Help Menu**\n${(100_000_000).formatAsCompact()}`);
+
+        await interaction.createMessage({
+            embeds: [embed.build()]
+        });
     }
 }
 

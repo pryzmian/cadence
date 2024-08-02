@@ -1,7 +1,7 @@
-import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
-import type { AutocompleteInteraction } from 'eris';
+import type { IShardClient } from '@core/_types/IShardClient';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { AutocompleteInteraction } from 'eris';
 
 export class PlayAutocompleteCommand implements IAutocompleteCommand {
     public data = {

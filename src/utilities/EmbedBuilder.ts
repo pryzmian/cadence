@@ -1,45 +1,5 @@
 import type { Embed } from 'eris';
 
-/*
-interface EmbedAuthorOptions {
-    // biome-ignore lint/style/useNamingConvention: <explanation>
-    icon_url?: string;
-    name: string;
-    url?: string;
-}
-
-interface EmbedFooterOptions {
-    // biome-ignore lint/style/useNamingConvention: <explanation>
-    icon_url?: string;
-    text: string;
-}
-
-interface EmbedImageOptions {
-    url?: string;
-}
-
-interface EmbedField {
-    name: string;
-    value: string;
-    inline?: boolean;
-}
-
-
-interface EmbedOptions {
-    type: string;
-    author?: EmbedAuthorOptions;
-    color?: number;
-    description?: string;
-    fields?: EmbedField[];
-    footer?: EmbedFooterOptions;
-    image?: EmbedImageOptions;
-    thumbnail?: EmbedImageOptions;
-    timestamp?: Date | string;
-    title?: string;
-    url?: string;
-}
-*/
-
 export class EmbedBuilder {
     private embed: Embed;
 
@@ -49,7 +9,7 @@ export class EmbedBuilder {
         };
     }
 
-    // biome-ignore lint/style/useNamingConvention: <explanation>
+    // biome-ignore lint/style/useNamingConvention: External API field
     setAuthor(name: string, icon_url?: string, url?: string): this {
         this.embed.author = { name, icon_url, url };
         return this;
@@ -73,7 +33,7 @@ export class EmbedBuilder {
         return this;
     }
 
-    // biome-ignore lint/style/useNamingConvention: <explanation>
+    // biome-ignore lint/style/useNamingConvention: External API field
     setFooter(text: string, icon_url?: string): this {
         this.embed.footer = { text, icon_url };
         return this;

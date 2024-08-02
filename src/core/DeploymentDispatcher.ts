@@ -1,9 +1,9 @@
-import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IShardClient } from '@core/_types/IShardClient';
 import type { IDeploymentDispatcher } from '@type/IDeploymentDispatcher';
-import { readdirSync } from 'node:fs';
+import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ISlashCommand } from '@type/ISlashCommand';
+import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import type { IShardClient } from '@type/IShardClient';
 
 export class DeploymentDispatcher implements IDeploymentDispatcher {
     private _logger: ILoggerService;

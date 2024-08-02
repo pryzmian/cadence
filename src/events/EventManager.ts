@@ -1,9 +1,9 @@
-import fs from 'node:fs';
-import path, { join } from 'node:path';
-import type { IEventHandler } from '@type/IEventHandler';
-import type { IEventManager } from '@events/_types/IEventManager';
-import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ShardClient } from '@core/ShardClient';
+import type { IEventManager } from '@events/_types/IEventManager';
+import type { IEventHandler } from '@type/IEventHandler';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import fs from 'node:fs';
+import { join } from 'node:path';
 
 export class EventManager implements IEventManager {
     private _logger: ILoggerService;
@@ -33,15 +33,15 @@ export class EventManager implements IEventManager {
             switch (name) {
                 case 'shardclient':
                     this._logger.debug(`Loading client event handlers from '${name}' directory`);
-                    this._loadClientEventHandlers(path.join(this._eventsPath, name));
+                    this._loadClientEventHandlers(join(this._eventsPath, name));
                     break;
                 case 'player':
                     this._logger.debug(`Loading player event handlers from '${name}' directory`);
-                    this._loadPlayerEventHandlers(path.join(this._eventsPath, name));
+                    this._loadPlayerEventHandlers(join(this._eventsPath, name));
                     break;
                 case 'process':
                     this._logger.debug(`Loading process event handlers from '${name}' directory`);
-                    this._loadProcessEventHandlers(path.join(this._eventsPath, name));
+                    this._loadProcessEventHandlers(join(this._eventsPath, name));
                     break;
                 default:
                     this._logger.debug(`Unknown event type folder: '${name}', ignoring...`);

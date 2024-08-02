@@ -1,7 +1,7 @@
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IShardClient } from '@core/_types/IShardClient';
-import type { ComponentInteraction } from 'eris';
+import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IMessageComponent } from '@type/IMessageComponent';
+import type { ComponentInteraction } from 'eris';
 import Eris from 'eris';
 
 export class ButtonLinkGithubComponent implements IMessageComponent {

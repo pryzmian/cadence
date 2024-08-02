@@ -1,6 +1,6 @@
 import { PlayerEvents, type IEventHandler } from '@type/IEventHandler';
 import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
+import type { IShardClient } from '@core/_types/IShardClient';
 
 export class PlayerErrorHandler implements IEventHandler {
     public name = PlayerEvents.PlayerError;

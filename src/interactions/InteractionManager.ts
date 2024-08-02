@@ -1,12 +1,12 @@
-import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@type/IShardClient';
-import type { CommandInteraction, AutocompleteInteraction, ComponentInteraction, PingInteraction } from 'eris';
+import type { IShardClient } from '@core/_types/IShardClient';
 import { MessageResponseFlags, type IInteractionManager } from '@interactions/_types/IInteractionManager';
-import type { ISlashCommand } from '@type/ISlashCommand';
-import fs from 'node:fs';
-import path, { join } from 'node:path';
-import type { IMessageComponent } from '@type/IMessageComponent';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
+import type { IMessageComponent } from '@type/IMessageComponent';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { ISlashCommand } from '@type/ISlashCommand';
+import type { AutocompleteInteraction, CommandInteraction, ComponentInteraction, PingInteraction } from 'eris';
+import fs from 'node:fs';
+import { join } from 'node:path';
 
 export class InteractionManager implements IInteractionManager {
     private _logger: ILoggerService;
@@ -37,15 +37,15 @@ export class InteractionManager implements IInteractionManager {
             switch (name) {
                 case 'slashcommand':
                     this._logger.debug(`Loading slash command interaction handlers from '${name}' directory`);
-                    this._loadSlashCommandInteractionHandlers(path.join(this._interactionsPath, name));
+                    this._loadSlashCommandInteractionHandlers(join(this._interactionsPath, name));
                     break;
                 case 'autocomplete':
                     this._logger.debug(`Loading autocomplete interaction handlers from '${name}' directory`);
-                    this._loadAutocompleteInteractionHandlers(path.join(this._interactionsPath, name));
+                    this._loadAutocompleteInteractionHandlers(join(this._interactionsPath, name));
                     break;
                 case 'component':
                     this._logger.debug(`Loading component interaction handlers from '${name}' directory`);
-                    this._loadComponentInteractionHandlers(path.join(this._interactionsPath, name));
+                    this._loadComponentInteractionHandlers(join(this._interactionsPath, name));
                     break;
                 default:
                     this._logger.debug(`Unknown interaction type folder: '${name}', ignoring...`);

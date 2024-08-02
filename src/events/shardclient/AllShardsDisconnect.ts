@@ -1,14 +1,14 @@
-import { ShardClientEvents } from '@type/IEventHandler';
-import type { IEventHandler } from '@type/IEventHandler';
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IShardClient } from '@core/_types/IShardClient';
+import type { ILoggerService } from '@services/_types/insights/ILoggerService';
+import type { IEventHandler } from '@type/IEventHandler';
+import { ShardClientEvents } from '@type/IEventHandler';
 
 export class AllShardsDisconnectEventHandler implements IEventHandler {
     public name = ShardClientEvents.AllShardsDisconnect;
     public once = false;
 
     public async run(logger: ILoggerService, _shardClient: IShardClient) {
-        logger.info(`Event '${this.name}' received: All shards are disconnected.`);
+        logger.info(`Event '${this.name}' received: All shards for the worker is disconnected.`);
     }
 }
 
