@@ -47,9 +47,7 @@ describe('EventManager', () => {
     it('should initialize with provided file system module', () => {
         const eventManager = new EventManager(mockLoggerService, mockShardClient, eventsPath, fsMock);
         expect(mockLoggerService.updateContext).toHaveBeenCalledWith({ module: 'events' });
-        expect(mockLoggerService.debug).toHaveBeenCalledWith(
-            `Using path '${eventsPath}' for event handlers.`
-        );
+        expect(mockLoggerService.debug).toHaveBeenCalledWith(`Using path '${eventsPath}' for event handlers.`);
         expect(eventManager['_fs']).toBe(fsMock);
     });
 
@@ -112,11 +110,7 @@ describe('EventManager', () => {
             const args = ['arg1', 'arg2'];
             eventListener(...args);
 
-            expect(mockEventHandler.run).toHaveBeenCalledWith(
-                mockLoggerService,
-                mockShardClient,
-                ...args
-            );
+            expect(mockEventHandler.run).toHaveBeenCalledWith(mockLoggerService, mockShardClient, ...args);
         });
     });
 
@@ -142,11 +136,7 @@ describe('EventManager', () => {
             const args = ['arg1', 'arg2'];
             eventListener(...args);
 
-            expect(mockEventHandler.run).toHaveBeenCalledWith(
-                mockLoggerService,
-                mockShardClient,
-                ...args
-            );
+            expect(mockEventHandler.run).toHaveBeenCalledWith(mockLoggerService, mockShardClient, ...args);
         });
 
         it('should load process event handlers with process.once', () => {
@@ -170,11 +160,7 @@ describe('EventManager', () => {
             const args = ['arg1', 'arg2'];
             eventListener(...args);
 
-            expect(mockEventHandler.run).toHaveBeenCalledWith(
-                mockLoggerService,
-                mockShardClient,
-                ...args
-            );
+            expect(mockEventHandler.run).toHaveBeenCalledWith(mockLoggerService, mockShardClient, ...args);
         });
     });
 

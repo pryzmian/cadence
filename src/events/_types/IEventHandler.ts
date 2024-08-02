@@ -23,7 +23,7 @@ export enum ShardEvents {
 }
 
 export enum PlayerEvents {
-    PlayerError = 'playerError', // queue, error
+    PlayerError = 'playerError' // queue, error
 }
 
 export enum ProcessEvents {

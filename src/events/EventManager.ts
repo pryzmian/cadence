@@ -75,11 +75,11 @@ export class EventManager implements IEventManager {
         for (const eventHandler of eventHandlerModules) {
             eventHandler.once
                 ? process.once(eventHandler.name, (...args) => {
-                    eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
-                })
+                      eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                  })
                 : process.on(eventHandler.name, (...args) => {
-                    eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
-                });
+                      eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                  });
         }
     }
 

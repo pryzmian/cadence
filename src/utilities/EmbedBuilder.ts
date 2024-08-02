@@ -1,4 +1,4 @@
-import type { Embed } from "eris";
+import type { Embed } from 'eris';
 
 /*
 interface EmbedAuthorOptions {
@@ -46,7 +46,7 @@ export class EmbedBuilder {
     constructor() {
         this.embed = {
             type: 'rich'
-        }
+        };
     }
 
     // biome-ignore lint/style/useNamingConvention: <explanation>

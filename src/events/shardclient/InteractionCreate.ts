@@ -93,10 +93,17 @@ export class InteractionCreateEventHandler implements IEventHandler {
         }
     }
 
-    private async _respondWithErrorEmbed(logger: ILoggerService, interaction: CommandInteraction | ComponentInteraction, error: Error) {
+    private async _respondWithErrorEmbed(
+        logger: ILoggerService,
+        interaction: CommandInteraction | ComponentInteraction,
+        error: Error
+    ) {
         const embed = new EmbedBuilder()
-            .setAuthor(interaction.member?.nick ?? interaction.member?.username ?? '', interaction.member?.avatarURL ?? interaction.member?.defaultAvatarURL)
-            .setColor(0xF23F43)
+            .setAuthor(
+                interaction.member?.nick ?? interaction.member?.username ?? '',
+                interaction.member?.avatarURL ?? interaction.member?.defaultAvatarURL
+            )
+            .setColor(0xf23f43)
             .setDescription(`<:ERROR_ICON:1129529400703074324> **Error encountered**\n\`\`\`${error.message}\`\`\``)
             .setFooter(`Execution ID ${logger.getExecutionId()}`)
             .build();
@@ -118,7 +125,9 @@ export class InteractionCreateEventHandler implements IEventHandler {
 
     private async _respondWithEmptyAutocompleteResult(logger: ILoggerService, interaction: AutocompleteInteraction) {
         if (interaction.createdAt > Date.now() - 2_500) {
-            logger.debug(`Ignoring autocomplete interaction with ID ${interaction.id} because it was created more than 2.5 seconds ago.`);
+            logger.debug(
+                `Ignoring autocomplete interaction with ID ${interaction.id} because it was created more than 2.5 seconds ago.`
+            );
             return;
         }
 

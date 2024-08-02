@@ -6,12 +6,7 @@ export class PlayerErrorHandler implements IEventHandler {
     public name = PlayerEvents.PlayerError;
     public once = false;
 
-    public async run(
-        logger: ILoggerService,
-        _shardClient: IShardClient,
-        queue: unknown,
-        error: Error
-    ) {
+    public async run(logger: ILoggerService, _shardClient: IShardClient, queue: unknown, error: Error) {
         logger.error({ queue, error }, `Event '${this.name}' received: An error has occurred in the player.`);
     }
 }
