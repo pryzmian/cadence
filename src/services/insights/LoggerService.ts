@@ -37,7 +37,7 @@ export class LoggerService implements ILoggerService {
     constructor(context: LogContext, parent?: ILoggerService) {
         this._logConfig = config.get<LoggerServiceConfig>('loggerServiceConfig');
 
-        const executionId = context.executionId || generateExecutionId()
+        const executionId = context.executionId || generateExecutionId();
 
         if (parent) {
             this._logger = parent.getLogger().child(context);
@@ -51,7 +51,6 @@ export class LoggerService implements ILoggerService {
                     ...context
                 }
             };
-
 
             const transport: DestinationStream = pino.transport({ targets: this._generateTransportTargets() });
 
