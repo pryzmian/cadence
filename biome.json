@@ -38,7 +38,16 @@
                 "useNumberToFixedDigitsArgument": "warn",
                 "useThrowNewError": "warn",
                 "useThrowOnlyError": "warn",
-                "useTopLevelRegex": "warn"
+                "useTopLevelRegex": "warn",
+                "noRestrictedImports": {
+                    "level": "error",
+                    "options": {
+                        "paths": {
+                            "buffer": "Use Uint8Array instead",
+                            "node:buffer": "Use Uint8Array instead"
+                        }
+                    }
+                }
             },
             "performance": {
                 "noBarrelFile": "warn",
@@ -58,6 +67,12 @@
                         "enumMemberCase": "PascalCase"
                     },
                     "fix": "safe"
+                },
+                "noRestrictedGlobals": {
+                    "level": "error",
+                    "options": {
+                        "deniedGlobals": ["Buffer"]
+                    }
                 }
             }
         },
