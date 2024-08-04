@@ -8,7 +8,8 @@ export interface IShardClient {
     setMaxListeners(maxListeners: number): void;
     getShardId(guildId: string | undefined): number;
     getShardCount(): number;
-    getTotalShardCount(): number;
+    getWorkerShardCount(): number;
+    getGlobalShardCount(): number;
     deployCommand(command: ISlashCommand): Promise<Eris.ApplicationCommand>;
     getCommands(): Promise<Eris.ApplicationCommand[]>;
     deleteCommands(): Promise<void>;

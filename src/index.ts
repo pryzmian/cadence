@@ -4,7 +4,7 @@ import 'dotenv/config';
 import config from 'config';
 import packageJson from '../package.json';
 
-import type { HealthCheckConfig, WorkerManagerConfig } from '@config/types';
+import type { HealthCheckConfig } from '@config/types';
 import { CoreValidator } from '@core/CoreValidator';
 import { WorkerManager } from '@core/WorkerManager';
 import { StorageClientHealth } from '@services/insights/health-checks/StorageClientHealth';
@@ -22,8 +22,7 @@ const logger = useLogger();
 // Initialize core components
 const coreValidator = new CoreValidator(logger, config, exec, fetch, packageJson);
 const workerPath = join(__dirname, 'core', 'ShardWorker');
-const workerManagerconfig = config.get<WorkerManagerConfig>('workerManagerConfig');
-const workerManager = new WorkerManager(logger, workerPath, workerManagerconfig);
+const workerManager = new WorkerManager(logger, workerPath);
 //const interactionsPath = join(__dirname, 'interactions');
 //const deploymentDispatcher = new DeploymentDispatcher(logger, shardClient, interactionsPath); // need to update for worker threads...
 

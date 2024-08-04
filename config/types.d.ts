@@ -1,8 +1,3 @@
-export type WorkerManagerConfig = {
-    globalShardCount: number | 'auto';
-    workerCount: number | 'auto';
-};
-
 export type ShardClientConfig = {} & Omit<
     ClientOptions,
     'shardConcurrency' | 'firstShardID' | 'lastShardID' | 'maxShards'

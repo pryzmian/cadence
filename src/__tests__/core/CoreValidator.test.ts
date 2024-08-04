@@ -119,10 +119,19 @@ describe('CoreValidator', () => {
         delete process.env.NODE_ENV;
         delete process.env.DISCORD_BOT_TOKEN;
         delete process.env.DISCORD_APPLICATION_ID;
-        delete process.env.TOTAL_SHARDS;
+        delete process.env.GLOBAL_SHARD_COUNT;
+        delete process.env.SHARD_COUNT;
+        delete process.env.WORKER_COUNT;
         delete process.env.YT_EXTRACTOR_AUTH;
         delete process.env.YT_EXTRACTOR_AUTH_1;
         delete process.env.YT_EXTRACTOR_AUTH_2;
+
+        process.env.NODE_ENV = 'development';
+        process.env.DISCORD_BOT_TOKEN = 'bot-token';
+        process.env.DISCORD_APPLICATION_ID = '12345';
+        process.env.GLOBAL_SHARD_COUNT = 'AUTO';
+        process.env.SHARD_COUNT = 'AUTO';
+        process.env.WORKER_COUNT = 'AUTO';
 
         mockLoggerService = new MockLoggerService();
         updateTestSetup();
@@ -286,7 +295,9 @@ describe('CoreValidator', () => {
             process.env.NODE_ENV = 'development';
             process.env.DISCORD_BOT_TOKEN = 'bot-token';
             process.env.DISCORD_APPLICATION_ID = '12345';
-            process.env.TOTAL_SHARDS = 'AUTO';
+            process.env.GLOBAL_SHARD_COUNT = 'AUTO';
+            process.env.SHARD_COUNT = 'AUTO';
+            process.env.WORKER_COUNT = 'AUTO';
 
             // Act
             await coreValidator.validateEnvironmentVariables();
@@ -294,9 +305,7 @@ describe('CoreValidator', () => {
             // Assert
             expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
             expect(mockLoggerService.debug).toHaveBeenCalledWith('NODE_ENV is set to development.');
-            expect(mockLoggerService.debug).toHaveBeenCalledWith('DISCORD_BOT_TOKEN is set.');
-            expect(mockLoggerService.debug).toHaveBeenCalledWith('DISCORD_APPLICATION_ID is set.');
-            expect(mockLoggerService.debug).toHaveBeenCalledWith('TOTAL_SHARDS is set to AUTO.');
+            expect(mockLoggerService.debug).toHaveBeenCalledWith('Required environment variables are set.');
             expect(mockLoggerService.error).not.toHaveBeenCalled();
             expect(mockLoggerService.debug).toHaveBeenCalledWith('Successfully validated environment variables.');
         });
@@ -306,7 +315,9 @@ describe('CoreValidator', () => {
             process.env.NODE_ENV = 'test';
             process.env.DISCORD_BOT_TOKEN = 'bot-token';
             process.env.DISCORD_APPLICATION_ID = '12345';
-            process.env.TOTAL_SHARDS = 'AUTO';
+            process.env.GLOBAL_SHARD_COUNT = 'AUTO';
+            process.env.SHARD_COUNT = 'AUTO';
+            process.env.WORKER_COUNT = 'AUTO';
 
             // Act
             await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
@@ -373,12 +384,14 @@ describe('CoreValidator', () => {
             expect(mockLoggerService.info).not.toHaveBeenCalled();
         });
 
-        it('should throw an error if TOTAL_SHARDS is not set to AUTO or a valid number', async () => {
+        it('should throw an error if GLOBAL_SHARD_COUNT is not set to AUTO or a valid number', async () => {
             // Arrange
             process.env.NODE_ENV = 'development';
             process.env.DISCORD_BOT_TOKEN = 'bot-token';
             process.env.DISCORD_APPLICATION_ID = '12345';
-            process.env.TOTAL_SHARDS = 'test';
+            process.env.GLOBAL_SHARD_COUNT = 'test';
+            process.env.SHARD_COUNT = 'AUTO';
+            process.env.WORKER_COUNT = 'AUTO';
 
             // Act
             await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
@@ -386,7 +399,107 @@ describe('CoreValidator', () => {
             // Assert
             expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
             expect(mockLoggerService.error).toHaveBeenCalledWith(
-                'TOTAL_SHARDS is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...'
+                'GLOBAL_SHARD_COUNT is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...'
+            );
+            expect(mockLoggerService.info).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if SHARD_COUNT is not set to AUTO or a valid number', async () => {
+            // Arrange
+            process.env.NODE_ENV = 'development';
+            process.env.DISCORD_BOT_TOKEN = 'bot-token';
+            process.env.DISCORD_APPLICATION_ID = '12345';
+            process.env.GLOBAL_SHARD_COUNT = 'AUTO';
+            process.env.SHARD_COUNT = 'test';
+            process.env.WORKER_COUNT = 'AUTO';
+
+            // Act
+            await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
+
+            // Assert
+            expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
+            expect(mockLoggerService.error).toHaveBeenCalledWith(
+                'SHARD_COUNT is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...'
+            );
+            expect(mockLoggerService.info).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if WORKER_COUNT is not set to AUTO or a valid number', async () => {
+            // Arrange
+            process.env.NODE_ENV = 'development';
+            process.env.DISCORD_BOT_TOKEN = 'bot-token';
+            process.env.DISCORD_APPLICATION_ID = '12345';
+            process.env.GLOBAL_SHARD_COUNT = 'AUTO';
+            process.env.SHARD_COUNT = 'AUTO';
+            process.env.WORKER_COUNT = 'test';
+
+            // Act
+            await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
+
+            // Assert
+            expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
+            expect(mockLoggerService.error).toHaveBeenCalledWith(
+                'WORKER_COUNT is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...'
+            );
+            expect(mockLoggerService.info).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if GLOBAL_SHARD_COUNT is lower than SHARD_COUNT', async () => {
+            // Arrange
+            process.env.NODE_ENV = 'development';
+            process.env.DISCORD_BOT_TOKEN = 'bot-token';
+            process.env.DISCORD_APPLICATION_ID = '12345';
+            process.env.GLOBAL_SHARD_COUNT = '1';
+            process.env.SHARD_COUNT = '2';
+            process.env.WORKER_COUNT = '2';
+
+            // Act
+            await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
+
+            // Assert
+            expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
+            expect(mockLoggerService.error).toHaveBeenCalledWith(
+                'GLOBAL_SHARD_COUNT (1) is lower than SHARD_COUNT (2). Please adjust the configuration accordingly.'
+            );
+            expect(mockLoggerService.info).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if SHARD_COUNT is lower than WORKER_COUNT', async () => {
+            // Arrange
+            process.env.NODE_ENV = 'development';
+            process.env.DISCORD_BOT_TOKEN = 'bot-token';
+            process.env.DISCORD_APPLICATION_ID = '12345';
+            process.env.GLOBAL_SHARD_COUNT = '2';
+            process.env.SHARD_COUNT = '1';
+            process.env.WORKER_COUNT = '2';
+
+            // Act
+            await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
+
+            // Assert
+            expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
+            expect(mockLoggerService.error).toHaveBeenCalledWith(
+                'SHARD_COUNT (1) is lower than WORKER_COUNT (2). Please adjust the configuration accordingly.'
+            );
+            expect(mockLoggerService.info).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if GLOBAL_SHARD_COUNT is lower than WORKER_COUNT', async () => {
+            // Arrange
+            process.env.NODE_ENV = 'development';
+            process.env.DISCORD_BOT_TOKEN = 'bot-token';
+            process.env.DISCORD_APPLICATION_ID = '12345';
+            process.env.GLOBAL_SHARD_COUNT = '2';
+            process.env.SHARD_COUNT = '2';
+            process.env.WORKER_COUNT = '3';
+
+            // Act
+            await expect(coreValidator.validateEnvironmentVariables()).rejects.toThrow('[MOCK] process.exit() called');
+
+            // Assert
+            expect(mockLoggerService.debug).toHaveBeenCalledWith('Validating environment variables...');
+            expect(mockLoggerService.error).toHaveBeenCalledWith(
+                'GLOBAL_SHARD_COUNT (2) is lower than WORKER_COUNT (3). Please adjust the configuration accordingly.'
             );
             expect(mockLoggerService.info).not.toHaveBeenCalled();
         });
