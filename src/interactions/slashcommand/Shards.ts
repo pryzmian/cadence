@@ -17,7 +17,10 @@ export class ShardsCommand implements ISlashCommand {
     ): Promise<void> {
         logger.debug(`Handling '${this.data.name}' command...`);
 
-        const workerCount = (process.env.WORKER_COUNT ?? '1') === 'auto' ? availableParallelism() : Number.parseInt(process.env.WORKER_COUNT ?? '1');
+        const workerCount =
+            (process.env.WORKER_COUNT ?? '1') === 'auto'
+                ? availableParallelism()
+                : Number.parseInt(process.env.WORKER_COUNT ?? '1');
         const globalShardCount = _shardClient.getGlobalShardCount();
         const workerShardCount = _shardClient.getWorkerShardCount();
         const clientShardCount = _shardClient.getShardCount();

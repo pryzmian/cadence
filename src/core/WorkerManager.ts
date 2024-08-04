@@ -18,9 +18,12 @@ export class WorkerManager implements IWorkerManager {
         const globalShardCount = process.env.GLOBAL_SHARD_COUNT || '1';
         const shardCount = process.env.SHARD_COUNT || '1';
         const workerCount = process.env.WORKER_COUNT || '1';
-        this._globalShardCount = globalShardCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(globalShardCount);
-        this._totalWorkerCount = workerCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(workerCount);
-        this._totalShardCount = shardCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(shardCount);;
+        this._globalShardCount =
+            globalShardCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(globalShardCount);
+        this._totalWorkerCount =
+            workerCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(workerCount);
+        this._totalShardCount =
+            shardCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(shardCount);
 
         // Move this to corevalidator
         if (this._totalShardCount < this._totalWorkerCount) {

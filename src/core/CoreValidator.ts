@@ -84,41 +84,52 @@ export class CoreValidator implements ICoreValidator {
         this._logger.debug(`NODE_ENV is set to ${process.env.NODE_ENV}.`);
 
         // Sharding and worker environmental variables
-        const envs = [EnvironmentVariables.GlobalShardCount, EnvironmentVariables.ShardCount, EnvironmentVariables.WorkerCount];
+        const envs = [
+            EnvironmentVariables.GlobalShardCount,
+            EnvironmentVariables.ShardCount,
+            EnvironmentVariables.WorkerCount
+        ];
         for (const env of envs) {
-            if (process.env[env]?.toLowerCase() !== 'auto' && Number.isNaN(Number(process.env[env])) || process.env[env] === '0') {
-                const errorMessage =
-                    `${env} is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...`;
+            if (
+                (process.env[env]?.toLowerCase() !== 'auto' && Number.isNaN(Number(process.env[env]))) ||
+                process.env[env] === '0'
+            ) {
+                const errorMessage = `${env} is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...`;
                 this._logger.error(errorMessage);
                 process.exit(1);
             }
             this._logger.debug(`${env} is set to ${process.env[env]}.`);
         }
-        const globalShardCount = (process.env.GLOBAL_SHARD_COUNT ?? '1').toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(process.env.GLOBAL_SHARD_COUNT ?? '1');
-        const shardCount = (process.env.SHARD_COUNT ?? '1').toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(process.env.SHARD_COUNT ?? '1');
-        const workerCount = (process.env.WORKER_COUNT ?? '1').toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(process.env.WORKER_COUNT ?? '1');
+        const globalShardCount =
+            (process.env.GLOBAL_SHARD_COUNT ?? '1').toLowerCase() === 'auto'
+                ? availableParallelism()
+                : Number.parseInt(process.env.GLOBAL_SHARD_COUNT ?? '1');
+        const shardCount =
+            (process.env.SHARD_COUNT ?? '1').toLowerCase() === 'auto'
+                ? availableParallelism()
+                : Number.parseInt(process.env.SHARD_COUNT ?? '1');
+        const workerCount =
+            (process.env.WORKER_COUNT ?? '1').toLowerCase() === 'auto'
+                ? availableParallelism()
+                : Number.parseInt(process.env.WORKER_COUNT ?? '1');
 
         // Ensure GLOBAL_SHARD_COUNT is higher or equal to SHARD_COUNT
         if (globalShardCount < shardCount) {
-            const errorMessage =
-                `GLOBAL_SHARD_COUNT (${globalShardCount}) is lower than SHARD_COUNT (${shardCount}). Please adjust the configuration accordingly.`;
+            const errorMessage = `GLOBAL_SHARD_COUNT (${globalShardCount}) is lower than SHARD_COUNT (${shardCount}). Please adjust the configuration accordingly.`;
             this._logger.error(errorMessage);
             process.exit(1);
         }
 
         // Ensure GLOBAL_SHARD_COUNT is higher or equal to workerCount
         if (globalShardCount < workerCount) {
-            const errorMessage =
-                `GLOBAL_SHARD_COUNT (${globalShardCount}) is lower than WORKER_COUNT (${workerCount}). Please adjust the configuration accordingly.`;
+            const errorMessage = `GLOBAL_SHARD_COUNT (${globalShardCount}) is lower than WORKER_COUNT (${workerCount}). Please adjust the configuration accordingly.`;
             this._logger.error(errorMessage);
             process.exit(1);
         }
 
-
         // Ensure SHARD_COUNT is higher or equal to WORKER_COUNT
         if (shardCount < workerCount) {
-            const errorMessage =
-                `SHARD_COUNT (${shardCount}) is lower than WORKER_COUNT (${workerCount}). Please adjust the configuration accordingly.`;
+            const errorMessage = `SHARD_COUNT (${shardCount}) is lower than WORKER_COUNT (${workerCount}). Please adjust the configuration accordingly.`;
             this._logger.error(errorMessage);
             process.exit(1);
         }
