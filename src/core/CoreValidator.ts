@@ -3,6 +3,7 @@ import type { ICoreValidator } from '@type/ICoreValidator';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { IConfig } from 'config';
 import type { exec } from 'node:child_process';
+import { availableParallelism } from 'node:os';
 
 type ConfigurationOptions = {
     shardClientConfig?: ShardClientConfig;
@@ -14,7 +15,9 @@ enum EnvironmentVariables {
     NodeEnv = 'NODE_ENV',
     DiscordBotToken = 'DISCORD_BOT_TOKEN',
     DiscordApplicationId = 'DISCORD_APPLICATION_ID',
-    TotalShards = 'TOTAL_SHARDS'
+    GlobalShardCount = 'GLOBAL_SHARD_COUNT',
+    ShardCount = 'SHARD_COUNT',
+    WorkerCount = 'WORKER_COUNT'
 }
 
 type PackageJson = {
@@ -51,7 +54,9 @@ export class CoreValidator implements ICoreValidator {
             EnvironmentVariables.NodeEnv,
             EnvironmentVariables.DiscordBotToken,
             EnvironmentVariables.DiscordApplicationId,
-            EnvironmentVariables.TotalShards
+            EnvironmentVariables.GlobalShardCount,
+            EnvironmentVariables.ShardCount,
+            EnvironmentVariables.WorkerCount
         ];
 
         const missingEnvironmentVariables: EnvironmentVariables[] = [];
@@ -67,10 +72,7 @@ export class CoreValidator implements ICoreValidator {
             process.exit(1);
         }
 
-        this._logger.debug('NODE_ENV is set.');
-        this._logger.debug('TOTAL_SHARDS is set.');
-        this._logger.debug('DISCORD_BOT_TOKEN is set.');
-        this._logger.debug('DISCORD_APPLICATION_ID is set.');
+        this._logger.debug('Required environment variables are set.');
 
         // Check that NODE_ENV is set to development or production
         if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'production') {
@@ -81,14 +83,45 @@ export class CoreValidator implements ICoreValidator {
         }
         this._logger.debug(`NODE_ENV is set to ${process.env.NODE_ENV}.`);
 
-        // Check TOTAL_SHARDS
-        if (process.env.TOTAL_SHARDS !== 'AUTO' && Number.isNaN(Number(process.env.TOTAL_SHARDS))) {
+        // Sharding and worker environmental variables
+        const envs = [EnvironmentVariables.GlobalShardCount, EnvironmentVariables.ShardCount, EnvironmentVariables.WorkerCount];
+        for (const env of envs) {
+            if (process.env[env]?.toLowerCase() !== 'auto' && Number.isNaN(Number(process.env[env])) || process.env[env] === '0') {
+                const errorMessage =
+                    `${env} is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...`;
+                this._logger.error(errorMessage);
+                process.exit(1);
+            }
+            this._logger.debug(`${env} is set to ${process.env[env]}.`);
+        }
+        const globalShardCount = (process.env.GLOBAL_SHARD_COUNT ?? '1').toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(process.env.GLOBAL_SHARD_COUNT ?? '1');
+        const shardCount = (process.env.SHARD_COUNT ?? '1').toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(process.env.SHARD_COUNT ?? '1');
+        const workerCount = (process.env.WORKER_COUNT ?? '1').toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(process.env.WORKER_COUNT ?? '1');
+
+        // Ensure GLOBAL_SHARD_COUNT is higher or equal to SHARD_COUNT
+        if (globalShardCount < shardCount) {
             const errorMessage =
-                'TOTAL_SHARDS is not set to AUTO or a valid number. Please set it to AUTO or the total number of shards. Exiting...';
+                `GLOBAL_SHARD_COUNT (${globalShardCount}) is lower than SHARD_COUNT (${shardCount}). Please adjust the configuration accordingly.`;
             this._logger.error(errorMessage);
             process.exit(1);
         }
-        this._logger.debug(`TOTAL_SHARDS is set to ${process.env.TOTAL_SHARDS}.`);
+
+        // Ensure GLOBAL_SHARD_COUNT is higher or equal to workerCount
+        if (globalShardCount < workerCount) {
+            const errorMessage =
+                `GLOBAL_SHARD_COUNT (${globalShardCount}) is lower than WORKER_COUNT (${workerCount}). Please adjust the configuration accordingly.`;
+            this._logger.error(errorMessage);
+            process.exit(1);
+        }
+
+
+        // Ensure SHARD_COUNT is higher or equal to WORKER_COUNT
+        if (shardCount < workerCount) {
+            const errorMessage =
+                `SHARD_COUNT (${shardCount}) is lower than WORKER_COUNT (${workerCount}). Please adjust the configuration accordingly.`;
+            this._logger.error(errorMessage);
+            process.exit(1);
+        }
 
         // Check if YT_EXTRACTOR_AUTH is set and valid, warn if not
         this._checkYouTubeExtractorAuthTokens();

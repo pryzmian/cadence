@@ -4,6 +4,7 @@ import { EventManager } from '@events/EventManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ISlashCommand } from '@type/ISlashCommand';
 import Eris, { Client } from 'eris';
+import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 
 export class ShardClient implements IShardClient {
@@ -83,14 +84,16 @@ export class ShardClient implements IShardClient {
         return this._shardClient.shards.size;
     }
 
-    // Should be shard count not only for current shard client but all clusters (global)
-    // If maxShards is 'auto' or undefined, then this will return the shard count for this shard client only as we assume there's no clustering
-    public getTotalShardCount(): number {
-        // NEED TO UPDATE FOR CLUSTERING
-        if (this._shardClientConfig.maxShards === 'auto') {
-            return this._shardClient.shards.size;
-        }
+    public getWorkerShardCount(): number {
         return this._shardClientConfig.maxShards ?? 1;
+    }
+
+    public getGlobalShardCount(): number {
+        const globalShardCount = process.env.GLOBAL_SHARD_COUNT || '1';
+        if (globalShardCount.toLowerCase() === 'auto') {
+            return availableParallelism();
+        }
+        return Number.parseInt(globalShardCount);
     }
 
     public async deployCommand(command: ISlashCommand): Promise<Eris.ApplicationCommand> {

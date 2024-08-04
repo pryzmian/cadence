@@ -1,4 +1,3 @@
-import type { WorkerManagerConfig } from '@config/types';
 import type { ShardWorkerConfig } from '@core/ShardWorker';
 import type { ILoggerService } from '@services/_types/insights/ILoggerService';
 import type { IWorkerManager } from '@type/IWorkerManager';
@@ -8,19 +7,20 @@ import { Worker } from 'node:worker_threads';
 export class WorkerManager implements IWorkerManager {
     private _logger: ILoggerService;
     private _workerPath: string;
-    private _workerManagerConfig: WorkerManagerConfig;
-    private _totalWorkerCount: number;
+    private _globalShardCount: number;
     private _totalShardCount: number;
+    private _totalWorkerCount: number;
     private _currentWorkerIndex = 0;
 
-    constructor(logger: ILoggerService, workerPath: string, workerManagerConfig: WorkerManagerConfig) {
+    constructor(logger: ILoggerService, workerPath: string) {
         this._logger = logger;
         this._workerPath = workerPath;
-        this._workerManagerConfig = workerManagerConfig;
-        const globalShardCount = this._workerManagerConfig.globalShardCount;
-        const workerCount = this._workerManagerConfig.workerCount;
-        this._totalWorkerCount = workerCount === 'auto' ? availableParallelism() : workerCount;
-        this._totalShardCount = globalShardCount === 'auto' ? availableParallelism() : globalShardCount;
+        const globalShardCount = process.env.GLOBAL_SHARD_COUNT || '1';
+        const shardCount = process.env.SHARD_COUNT || '1';
+        const workerCount = process.env.WORKER_COUNT || '1';
+        this._globalShardCount = globalShardCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(globalShardCount);
+        this._totalWorkerCount = workerCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(workerCount);
+        this._totalShardCount = shardCount.toLowerCase() === 'auto' ? availableParallelism() : Number.parseInt(shardCount);;
 
         // Move this to corevalidator
         if (this._totalShardCount < this._totalWorkerCount) {
@@ -49,7 +49,6 @@ export class WorkerManager implements IWorkerManager {
     }
 
     public async start() {
-        this._logger.info(`availableParallelism: ${availableParallelism()}`);
         this._logger.info('Starting workers...');
         this.startNextWorker();
     }
