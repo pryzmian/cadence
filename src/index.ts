@@ -14,7 +14,7 @@ import { StorageClient } from '@services/storage/StorageClient';
 import { exec } from 'node:child_process';
 import { join } from 'node:path';
 import { performance, PerformanceObserver } from 'node:perf_hooks';
-//import { DeploymentDispatcher } from '@core/DeploymentDispatcher';
+import { DeploymentDispatcher } from '@core/DeploymentDispatcher';
 
 // Get logger instance
 const logger = useLogger();
@@ -23,8 +23,9 @@ const logger = useLogger();
 const coreValidator = new CoreValidator(logger, config, exec, fetch, packageJson);
 const workerPath = join(__dirname, 'core', 'ShardWorker');
 const workerManager = new WorkerManager(logger, workerPath);
-//const interactionsPath = join(__dirname, 'interactions');
-//const deploymentDispatcher = new DeploymentDispatcher(logger, shardClient, interactionsPath); // need to update for worker threads...
+const interactionsPath = join(__dirname, 'interactions');
+const slashCommandsHashPath = join(__dirname, '..', '.data', 'slashcommands.json');
+const deploymentDispatcher = new DeploymentDispatcher(logger, interactionsPath, slashCommandsHashPath);
 
 // Initialize services
 const storageClient = new StorageClient(logger);
@@ -51,7 +52,7 @@ const startApplication = async (): Promise<void> => {
     await coreValidator.validateConfiguration();
     await coreValidator.checkDependencies();
     await coreValidator.checkApplicationVersion();
-    //await deploymentDispatcher.refreshSlashCommands();
+    await deploymentDispatcher.refreshSlashCommands();
     await workerManager.start();
     healthCheckService.start(healthCheckConfig.interval);
     logger.info('Application started successfully.');
