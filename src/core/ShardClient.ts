@@ -85,6 +85,9 @@ export class ShardClient implements IShardClient {
     }
 
     public getWorkerShardCount(): number {
+        if (this._shardClientConfig.maxShards === 'auto') {
+            return availableParallelism();
+        }
         return this._shardClientConfig.maxShards ?? 1;
     }
 

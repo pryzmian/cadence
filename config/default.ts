@@ -2,8 +2,7 @@ import { Constants } from 'eris';
 import type { HealthCheckConfig, LoggerServiceConfig, ShardClientConfig } from './types.d.ts';
 
 export const shardClientConfig: ShardClientConfig = {
-    intents: [Constants.Intents.guilds, Constants.Intents.guildVoiceStates],
-    maxShards: 1,
+    intents: [Constants.Intents.guilds, Constants.Intents.guildVoiceStates]
 };
 
 export const loggerServiceConfig: LoggerServiceConfig = {

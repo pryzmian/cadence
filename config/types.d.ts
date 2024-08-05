@@ -2,7 +2,7 @@ import type { ClientOptions } from 'eris';
 
 export type ShardClientConfig = {
     intents: ClientOptions['intents'];
-    maxShards: number;
+    maxShards?: number | 'auto';
     firstShardID?: number;
     lastShardID?: number;
     shardConcurrency?: 'auto' | number;
