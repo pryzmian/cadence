@@ -1,4 +1,4 @@
-import type { IDeploymentDispatcher, SlashCommandDataResponse } from '@type/IDeploymentDispatcher';
+import type { CommandHashes, IDeploymentDispatcher } from '@type/IDeploymentDispatcher';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ISlashCommand } from '@type/ISlashCommand';
 import { dirname, join } from 'node:path';
@@ -22,178 +22,91 @@ export class DeploymentDispatcher implements IDeploymentDispatcher {
     }
 
     public async refreshSlashCommands(): Promise<void> {
-        await this._loadSlashCommands(this._slashCommandsPath);
-        const commandsString = this._slashCommands.map((command) => `'/${command.data.name}'`).join(', ');
-
-        this._logger.info(`Checking slash commands for deployment: ${commandsString}`);
-        await this._deploySlashCommands();
+        await this.loadSlashCommands();
+        this._logger.info(`Checking slash commands for deployment: ${this.commandsToString()}`);
+        await this.deploySlashCommandsIfNeeded();
     }
 
-    public async deleteSlashCommands(): Promise<void> {
-        const registeredCommands = await this.getRegisteredSlashCommands();
-        if (registeredCommands.length === 0) {
-            this._logger.debug('No slash commands to delete.');
-            return;
-        }
-        for (const registeredCommand of registeredCommands) {
-            const url = `${this._baseUrl}/${this._applicationId}/commands/${registeredCommand.id}`;
-            this._logger.debug(`Deleting slash command '${registeredCommand.name}' with url '${url}'...`);
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // biome-ignore lint/style/useNamingConvention:
-                    Authorization: `Bot ${this._token}`
-                }
-            });
-
-            if (response.status !== 204 && response.status !== 200) {
-                this._logger.error(response.json(), 'Failed to delete slash command.');
-            }
-
-            this._logger.debug('Successfully deleted slash command.');
-        }
-
-        const registeredCommandsAfterDeletion = await this.getRegisteredSlashCommands();
-        if (registeredCommandsAfterDeletion.length === 0) {
-            this._logger.debug('No slash commands left after deletion.');
-        } else {
-            this._logger.debug(registeredCommandsAfterDeletion, 'Commands left after deletion:');
-        }
-
-        return;
-    }
-
-    public async getRegisteredSlashCommands(): Promise<SlashCommandDataResponse[]> {
-        const url = `${this._baseUrl}/${this._applicationId}/commands`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                // biome-ignore lint/style/useNamingConvention:
-                Authorization: `Bot ${this._token}`
-            }
-        });
-
-        if (!response.ok) {
-            this._logger.error(response.json(), 'Failed to fetch registered slash commands.');
-        }
-
-        const data = await response.json();
-        if (data.length === 0) {
-            this._logger.debug('No slash commands registered.');
-            return [];
-        }
-        this._logger.debug(data, 'Successfully fetched registered slash commands:');
-        return data;
-    }
-
-    private async _loadSlashCommands(folderPath: string): Promise<void> {
-        const slashCommands: ISlashCommand[] = [];
-        const slashCommandFiles = (await readdir(folderPath)).filter((file) => file.endsWith('.js'));
+    private async loadSlashCommands(): Promise<void> {
+        const slashCommandFiles = (await readdir(this._slashCommandsPath)).filter(file => file.endsWith('.js'));
         for (const file of slashCommandFiles) {
-            const slashCommand: ISlashCommand = require(join(folderPath, file));
-            if (!slashCommand.data.name || !slashCommand.data.description) {
-                this._logger.error(`Slash command '${file}' is not valid. Skipping...`);
-                continue;
+            const command: ISlashCommand | undefined = require(join(this._slashCommandsPath, file));
+            if (command?.data?.name && command?.data?.description) {
+                this._slashCommands.push(command);
+            } else {
+                this._logger.error(`Invalid slash command in '${file}'. Skipping...`);
             }
-            slashCommands.push(slashCommand);
         }
-        this._logger.debug(slashCommands, `Loaded ${slashCommands.length} slash commands from files in '${folderPath}'.`);
-        this._slashCommands = slashCommands;
+        this._logger.debug(`Loaded ${this._slashCommands.length} slash commands from '${this._slashCommandsPath}'.`);
     }
 
-    private async _deploySlashCommands(): Promise<void> {
-        // PUT = DELETE ALL, then CREATE - Overwrite whole list of application commands, even deleting other commands
-        // POST = UPSERT - Create new commands, or update existing commands, does not touch other commands
+    private async deploySlashCommandsIfNeeded(): Promise<void> {
+        const newHashes = this.generateCommandHashes();
+        const oldHashes = await this.loadCommandHashes();
 
-        const commands: ISlashCommand[] = this._slashCommands;
-        const newHashes: { [key: string]: string } = {};
-        const oldCommandHashes = await this.loadCommandHashes();
-
-        const commandsToDeploy: ISlashCommand[] = [];
-        for (const command of commands) {
-            const hash = this._hashSlashCommand(command);
-            newHashes[command.data.name] = hash;
-
-            if (oldCommandHashes[command.data.name] !== hash) {
-                this._logger.debug(`Updated slash command data for '${command.data.name}' detected. Old hash: ${oldCommandHashes[command.data.name]}, new hash: ${hash}`);
-                commandsToDeploy.push(command);
-            }
-        }
+        const commandsToDeploy = this._slashCommands.filter(cmd => newHashes[cmd.data.name] !== oldHashes[cmd.data.name]);
 
         if (commandsToDeploy.length === 0) {
             this._logger.info('No slash commands to deploy.');
             return;
         }
 
-        this._logger.info(`Deploying updated slash commands: ${commandsToDeploy.map((command) => `/${command.data.name}`).join(', ')}...`);
-        for (const slashCommand of commandsToDeploy) {
-            this._logger.debug(`Deploying slash command '${slashCommand.data.name}'...`);
-
-            const url = `${this._baseUrl}/${this._applicationId}/commands`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // biome-ignore lint/style/useNamingConvention:
-                    Authorization: `Bot ${this._token}`
-                },
-                body: JSON.stringify({ ...slashCommand.data })
-            });
-
-            if (!response.ok) {
-                this._logger.error(response.json(), 'Failed to deploy slash command.');
-            }
-
-            const data = await response.json();
-            this._logger.debug(data, `Successfully deployed slash command '${slashCommand.data.name}', response:`);
+        for (const command of commandsToDeploy) {
+            await this.deployCommand(command);
         }
 
-        await this._saveCommandHashes(newHashes);
+        await this.saveCommandHashes(newHashes);
     }
 
-    public async loadCommandHashes(): Promise<{ [key: string]: string }> {
+    private async deployCommand(command: ISlashCommand): Promise<void> {
+        const url = `${this._baseUrl}/${this._applicationId}/commands`;
+        const response = await fetch(url, {
+            method: 'POST',
+            // biome-ignore lint/style/useNamingConvention:
+            headers: { 'Content-Type': 'application/json', Authorization: `Bot ${this._token}` },
+            body: JSON.stringify(command.data)
+        });
+
+        if (!response.ok) {
+            this._logger.error(await response.json(), `Failed to deploy '${command.data.name}'.`);
+            return;
+        }
+
+        this._logger.debug(await response.json(), `Deployed '${command.data.name}' successfully.`);
+    }
+
+    private async loadCommandHashes(): Promise<CommandHashes> {
         try {
             const data = await readFile(this._slashCommandsHashPath, { encoding: 'utf8' });
-            const hashes = JSON.parse(data);
-            this._logger.debug(hashes, `Loaded slash commands hashes from '${this._slashCommandsHashPath}':`);
-            return hashes;
+            return JSON.parse(data);
         } catch (error) {
+            this._logger.debug(error, 'Error while checking existing hashes.');
             return {};
         }
     }
 
-    public generateCommandHashes(): { [key: string]: string } {
-        const slashCommands = this._slashCommands;
-        const slashCommandsHash: { [key: string]: string } = {};
-        for (const slashCommand of slashCommands) {
-            const hash = this._hashSlashCommand(slashCommand);
-            slashCommandsHash[slashCommand.data.name] = hash;
-        }
-        return slashCommandsHash;
-    }
-
-    private async _saveCommandHashes(hashes: { [key: string]: string }): Promise<void> {
-        const dirPath = dirname(this._slashCommandsHashPath);
+    private async saveCommandHashes(hashes: CommandHashes): Promise<void> {
         try {
-            await mkdir(dirPath, { recursive: true });
-            this._logger.debug(`Directory '${dirPath}' is created or already exists.`);
+            await mkdir(dirname(this._slashCommandsHashPath), { recursive: true });
+            await writeFile(this._slashCommandsHashPath, JSON.stringify(hashes));
+            this._logger.debug('Saved command hashes.');
         } catch (error) {
-            this._logger.error(`Error creating directory for slash commands hashes: ${error}`);
-            return;
+            this._logger.error(error, 'Failed to save command hashes.');
         }
-
-        const slashCommandsHashString = JSON.stringify(hashes);
-        await writeFile(this._slashCommandsHashPath, slashCommandsHashString);
-        this._logger.debug(hashes, `Saved slash command hashes to '${this._slashCommandsHashPath}'.`);
-        return;
     }
 
-    private _hashSlashCommand(slashCommand: ISlashCommand): string {
-        const slashCommandData = slashCommand.data;
-        const slashCommandDataString = JSON.stringify(slashCommandData);
-        const hash = createHash('sha256').update(slashCommandDataString).digest('hex');
-        return hash;
+    private generateCommandHashes(): CommandHashes {
+        return this._slashCommands.reduce((acc, command) => {
+            acc[command.data.name] = this.hashCommand(command);
+            return acc;
+        }, {} as CommandHashes);
+    }
+
+    private hashCommand(data: ISlashCommand): string {
+        return createHash('sha256').update(JSON.stringify(data)).digest('hex');
+    }
+
+    private commandsToString(): string {
+        return this._slashCommands.map(cmd => `/${cmd.data.name}`).join(', ');
     }
 }

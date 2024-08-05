@@ -33,10 +33,8 @@ export type SlashCommandDataResponse = {
     nsfw: boolean;
 }
 
+export type CommandHashes = { [key: string]: string };
+
 export interface IDeploymentDispatcher {
     refreshSlashCommands(): Promise<void>;
-    deleteSlashCommands(): Promise<void>;
-    getRegisteredSlashCommands(): Promise<SlashCommandDataResponse[]>;
-    loadCommandHashes(): Promise<{ [key: string]: string }>;
-    generateCommandHashes(): { [key: string]: string };
 }
