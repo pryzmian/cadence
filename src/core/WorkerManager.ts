@@ -64,6 +64,7 @@ export class WorkerManager implements IWorkerManager {
         } else {
             this._logger.info('All workers started successfully.');
             this._logger.info('All global shards ready.');
+            this._logger.info('APPLICATION IS READY! :)');
         }
     }
 
@@ -112,6 +113,6 @@ export class WorkerManager implements IWorkerManager {
             this.startNextWorker();
         });
 
-        this._logger.info('Worker process started.');
+        this._logger.debug('Worker process started.');
     }
 }

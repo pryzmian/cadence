@@ -1,7 +1,12 @@
-export type ShardClientConfig = {} & Omit<
-    ClientOptions,
-    'shardConcurrency' | 'firstShardID' | 'lastShardID' | 'maxShards'
->;
+import type { ClientOptions } from 'eris';
+
+export type ShardClientConfig = {
+    intents: ClientOptions['intents'];
+    maxShards?: number | 'auto';
+    firstShardID?: number;
+    lastShardID?: number;
+    shardConcurrency?: 'auto' | number;
+} & ClientOptions;
 
 export type LoggerServiceConfig = {
     logLevel: 'debug' | 'info' | 'warn' | 'error';
