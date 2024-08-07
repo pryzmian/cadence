@@ -1,4 +1,4 @@
-import type Eris from "eris";
+import type Eris from 'eris';
 
 enum ApplicationCommandType {
     ChatInput = 1,
@@ -22,7 +22,7 @@ export type SlashCommandDataResponse = {
     version: string;
     // biome-ignore lint/style/useNamingConvention:
     default_member_permissions: string;
-    type: Eris.Constants["ApplicationCommandTypes"];
+    type: Eris.Constants['ApplicationCommandTypes'];
     name: string;
     description: string;
     // biome-ignore lint/style/useNamingConvention:
@@ -31,7 +31,7 @@ export type SlashCommandDataResponse = {
     // biome-ignore lint/style/useNamingConvention:
     integration_types: number[];
     nsfw: boolean;
-}
+};
 
 export type CommandHashes = { [key: string]: string };
 

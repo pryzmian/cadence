@@ -1,8 +1,8 @@
+import type { HealthCheckConfig, LoggerServiceConfig, ShardClientConfig } from '@config/types';
 import { CoreValidator } from '@core/CoreValidator';
 import { MockLoggerService } from '@mocks/MockLoggerService';
-import type { IConfig } from 'config';
 import type { exec } from 'child_process';
-import type { HealthCheckConfig, ShardClientConfig, LoggerServiceConfig } from '@config/types';
+import type { IConfig } from 'config';
 
 describe('CoreValidator', () => {
     let mockLoggerService = new MockLoggerService();

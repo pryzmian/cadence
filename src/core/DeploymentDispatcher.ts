@@ -1,9 +1,9 @@
 import type { CommandHashes, IDeploymentDispatcher } from '@type/IDeploymentDispatcher';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ISlashCommand } from '@type/ISlashCommand';
-import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { writeFile, readFile, readdir, mkdir } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
 export class DeploymentDispatcher implements IDeploymentDispatcher {
     private _logger: ILoggerService;
@@ -14,7 +14,12 @@ export class DeploymentDispatcher implements IDeploymentDispatcher {
     private _token = process.env.DISCORD_BOT_TOKEN ?? '';
     private _slashCommandsHashPath: string;
 
-    constructor(logger: ILoggerService, interactionsPath: string, slashCommandsHashPath: string, discordApiBaseUrl = 'https://discord.com/api/v10') {
+    constructor(
+        logger: ILoggerService,
+        interactionsPath: string,
+        slashCommandsHashPath: string,
+        discordApiBaseUrl = 'https://discord.com/api/v10'
+    ) {
         this._logger = logger;
         this._slashCommandsPath = join(interactionsPath, 'slashcommand');
         this._slashCommandsHashPath = slashCommandsHashPath;
@@ -28,9 +33,10 @@ export class DeploymentDispatcher implements IDeploymentDispatcher {
     }
 
     private async loadSlashCommands(): Promise<void> {
-        const slashCommandFiles = (await readdir(this._slashCommandsPath)).filter(file => file.endsWith('.js'));
+        const slashCommandFiles = (await readdir(this._slashCommandsPath)).filter((file) => file.endsWith('.js'));
         for (const file of slashCommandFiles) {
-            const command: ISlashCommand | undefined = require(join(this._slashCommandsPath, file));
+            const filePath = join(this._slashCommandsPath, file);
+            const command = await this.importCommand(filePath);
             if (command?.data?.name && command?.data?.description) {
                 this._slashCommands.push(command);
             } else {
@@ -44,7 +50,9 @@ export class DeploymentDispatcher implements IDeploymentDispatcher {
         const newHashes = this.generateCommandHashes();
         const oldHashes = await this.loadCommandHashes();
 
-        const commandsToDeploy = this._slashCommands.filter(cmd => newHashes[cmd.data.name] !== oldHashes[cmd.data.name]);
+        const commandsToDeploy = this._slashCommands.filter(
+            (cmd) => newHashes[cmd.data.name] !== oldHashes[cmd.data.name]
+        );
 
         if (commandsToDeploy.length === 0) {
             this._logger.info('No slash commands to deploy.');
@@ -107,6 +115,16 @@ export class DeploymentDispatcher implements IDeploymentDispatcher {
     }
 
     private commandsToString(): string {
-        return this._slashCommands.map(cmd => `/${cmd.data.name}`).join(', ');
+        return this._slashCommands.map((cmd) => `/${cmd.data.name}`).join(', ');
+    }
+
+    private async importCommand(filePath: string): Promise<ISlashCommand | undefined> {
+        try {
+            const commandModule = await import(filePath);
+            return commandModule.default ? commandModule.default : commandModule;
+        } catch (error) {
+            this._logger.error(`Error loading command from file '${filePath}': ${error}`);
+            return undefined;
+        }
     }
 }
