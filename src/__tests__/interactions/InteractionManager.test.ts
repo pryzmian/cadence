@@ -1,16 +1,12 @@
+import type { IShardClient } from '@core/_types/IShardClient';
 import { InteractionManager } from '@interactions/InteractionManager';
 import { MockLoggerService } from '@mocks/MockLoggerService';
+import { MessageResponseFlags } from '@type/IInteractionManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { IShardClient } from '@core/_types/IShardClient';
-import type { CommandInteraction, AutocompleteInteraction, ComponentInteraction, PingInteraction } from 'eris';
+import type { AutocompleteInteraction, CommandInteraction, ComponentInteraction, PingInteraction } from 'eris';
+import Eris from 'eris';
 import fs from 'node:fs';
 import path, { join } from 'node:path';
-import { ISlashCommand } from '@interactions/_types/ISlashCommand';
-import { IAutocompleteCommand } from '@type/IAutocompleteCommand';
-import { IMessageComponent } from '@type/IMessageComponent';
-import { MessageResponseFlags } from '@type/IInteractionManager';
-import { desc } from 'drizzle-orm';
-import Eris from 'eris';
 
 let interactionsPath = join(__dirname, '..', '_mocks', 'interactions');
 

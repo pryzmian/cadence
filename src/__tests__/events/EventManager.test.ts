@@ -1,8 +1,8 @@
+import type { ShardClient } from '@core/ShardClient';
 import { EventManager } from '@events/EventManager';
 import { MockLoggerService } from '@mocks/MockLoggerService';
-import type { ILoggerService } from '@type/insights/ILoggerService';
-import type { ShardClient } from '@core/ShardClient';
 import type { IEventHandler } from '@type/IEventHandler';
+import type { ILoggerService } from '@type/insights/ILoggerService';
 import fs from 'node:fs';
 import path, { join } from 'node:path';
 
