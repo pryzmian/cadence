@@ -8,7 +8,7 @@
 
 <h3 align="center">
     Enhance your Discord experience with high-quality music.<br>
-    Free, open-source, community-driven!
+    Free, open source, community-driven!
 </h3>
 
 <p align="center">
