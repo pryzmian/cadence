@@ -5,6 +5,7 @@ import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { ISlashCommand } from '@type/ISlashCommand';
 import Eris, { Client } from 'eris';
 import { availableParallelism } from 'node:os';
+import fs from 'node:fs';
 import { join } from 'node:path';
 
 export class ShardClient implements IShardClient {
@@ -12,9 +13,14 @@ export class ShardClient implements IShardClient {
     private _shardClientConfig: ShardClientConfig;
     private _shardClient: Client;
     private _applicationId: string;
+    private _interactionsPath: string;
+    private _slashCommands = new Map<string, ISlashCommand>();
+    private _fs: typeof fs;
 
-    constructor(logger: ILoggerService, shardClientConfig: ShardClientConfig) {
+    constructor(logger: ILoggerService, shardClientConfig: ShardClientConfig, interactionsPath: string, fileSystemModule = fs) {
         this._logger = logger;
+        this._interactionsPath = interactionsPath;
+        this._fs = fileSystemModule;
         this._shardClientConfig = shardClientConfig;
         this._logger.debug(this._shardClientConfig, 'Shard client config');
 
@@ -35,6 +41,8 @@ export class ShardClient implements IShardClient {
             id: this._applicationId,
             flags: 1 << 23
         };
+
+        this.attachCommandsToClient();
     }
 
     public async start() {
@@ -120,5 +128,32 @@ export class ShardClient implements IShardClient {
             this._logger.debug(`Deleting slash command '${command.name}'...`);
             await this._shardClient.deleteCommand(command.id);
         }
+    }
+
+    public getSlashCommands(): Map<string, ISlashCommand> {
+        return this._slashCommands;
+    }
+
+    public getSlashCommandByName(name: string): ISlashCommand | undefined {
+        return this._slashCommands.get(name);
+    }
+
+    private attachCommandsToClient(): void {
+        const slashCommandFolderPath = join(this._interactionsPath, 'slashcommand');
+        const slashCommands = new Map<string, ISlashCommand>();
+        const slashcommandFiles = this._fs.readdirSync(slashCommandFolderPath).filter((file) => file.endsWith('.js'));
+        for (const file of slashcommandFiles) {
+            this._logger.warn(`Loading slash command '${file}'...`);
+            const slashCommand: ISlashCommand = require(join(slashCommandFolderPath, file));
+            if (!slashCommand.data || !slashCommand.data.name || !slashCommand.run) {
+                this._logger.error(`Slash command '${file}' does not implement ISlashCommand properly. Skipping...`);
+                continue;
+            }
+            this._logger.debug(slashCommand, `Slash command '${slashCommand.data.name}' attached to shard client.`);
+
+            slashCommands.set(slashCommand.data.name, slashCommand);
+        }
+
+        this._slashCommands = slashCommands;
     }
 }

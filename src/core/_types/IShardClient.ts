@@ -13,4 +13,6 @@ export interface IShardClient {
     deployCommand(command: ISlashCommand): Promise<Eris.ApplicationCommand>;
     getCommands(): Promise<Eris.ApplicationCommand[]>;
     deleteCommands(): Promise<void>;
+    getSlashCommands(): Map<string, ISlashCommand>;
+    getSlashCommandByName(name: string): ISlashCommand | undefined;
 }

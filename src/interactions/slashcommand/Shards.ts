@@ -1,7 +1,9 @@
 import type { IShardClient } from '@core/_types/IShardClient';
 import type { ISlashCommand, SlashCommandData } from '@interactions/_types/ISlashCommand';
 import type { ILoggerService } from '@services/_types/insights/ILoggerService';
-import type { CommandInteraction } from 'eris';
+import { EmbedBuilder } from '@utilities/EmbedBuilder';
+import { resolveColor } from '@utilities/EmbedUtilities';
+import type { CommandInteraction, Embed } from 'eris';
 import { availableParallelism } from 'node:os';
 
 export class ShardsCommand implements ISlashCommand {
@@ -9,6 +11,11 @@ export class ShardsCommand implements ISlashCommand {
         name: 'shards',
         description: 'Show shard count of the bot'
     };
+
+    public usageEmbed: Embed = new EmbedBuilder()
+        .setDescription('### ❓ \`/shards\` command usage\nThis command shows the shard count of the bot.')
+        .setColor(resolveColor('RANDOM'))
+        .build();
 
     public async run(
         logger: ILoggerService,

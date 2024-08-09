@@ -5,6 +5,7 @@ import type { ShardClientConfig } from '@config/types';
 import { useLogger } from '@services/insights/LoggerService';
 import { parentPort, workerData } from 'node:worker_threads';
 import { ShardClient } from './ShardClient';
+import { join } from 'node:path';
 
 export type ShardWorkerConfig = {
     maxShards: number | 'auto';
@@ -28,12 +29,13 @@ obs.observe({ type: 'measure' });
 const startShardWorker = async (): Promise<void> => {
     logger.info('Starting shard worker...');
 
+    const interactionsPath = join(__dirname, '..', 'interactions');
     const shardWorkerConfig = workerData as ShardWorkerConfig;
     const shardClientConfig: ShardClientConfig = config.get<ShardClientConfig>('shardClientConfig');
     const shardClient = new ShardClient(logger, {
         ...shardWorkerConfig,
         ...shardClientConfig
-    });
+    }, interactionsPath);
     await shardClient.start();
 
     logger.info('Shard worker started successfully.');

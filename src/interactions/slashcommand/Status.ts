@@ -1,13 +1,20 @@
 import type { IShardClient } from '@core/_types/IShardClient';
 import type { ISlashCommand, SlashCommandData } from '@interactions/_types/ISlashCommand';
 import type { ILoggerService } from '@services/_types/insights/ILoggerService';
-import type { CommandInteraction } from 'eris';
+import { EmbedBuilder } from '@utilities/EmbedBuilder';
+import { resolveColor } from '@utilities/EmbedUtilities';
+import type { CommandInteraction, Embed } from 'eris';
 
 export class StatusCommand implements ISlashCommand {
     public data: SlashCommandData = {
         name: 'status',
         description: 'Show status of the bot'
     };
+
+    public usageEmbed: Embed = new EmbedBuilder()
+        .setDescription('### ❓ \`/status\` command usage\nThis command shows the status of the bot.')
+        .setColor(resolveColor('RANDOM'))
+        .build();
 
     public async run(
         logger: ILoggerService,

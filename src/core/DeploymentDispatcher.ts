@@ -110,8 +110,8 @@ export class DeploymentDispatcher implements IDeploymentDispatcher {
         }, {} as CommandHashes);
     }
 
-    private hashCommand(data: ISlashCommand): string {
-        return createHash('sha256').update(JSON.stringify(data)).digest('hex');
+    private hashCommand(slashCommand: ISlashCommand): string {
+        return createHash('sha256').update(JSON.stringify(slashCommand.data)).digest('hex');
     }
 
     private commandsToString(): string {
