@@ -149,7 +149,7 @@ export class ShardClient implements IShardClient {
                 this._logger.error(`Slash command '${file}' does not implement ISlashCommand properly. Skipping...`);
                 continue;
             }
-            this._logger.debug(slashCommand, `Slash command '${slashCommand.data.name}' attached to shard client.`);
+            this._logger.debug(`Slash command '${slashCommand.data.name}' attached to shard client.`);
 
             slashCommands.set(slashCommand.data.name, slashCommand);
         }

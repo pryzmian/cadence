@@ -8,12 +8,12 @@ import type { CommandInteraction, Embed } from 'eris';
 export class StatusCommand implements ISlashCommand {
     public data: SlashCommandData = {
         name: 'status',
-        description: 'Show status of the bot'
+        description: 'Show system status of the bot.'
     };
 
     public usageEmbed: Embed = new EmbedBuilder()
-        .setDescription('### ❓ \`/status\` command usage\nThis command shows the status of the bot.')
-        .setColor(resolveColor('RANDOM'))
+        .setDescription('### <:RULE_ICON:1129488897034952816> \`/status\`\nThis command shows the status of the bot.')
+        .setColor(resolveColor('#5865F2'))
         .build();
 
     public async run(
@@ -25,7 +25,7 @@ export class StatusCommand implements ISlashCommand {
 
         const nodeMemoryUsageString = this._getMemoryUsage();
         const uptimeFormatted = this._getUptime();
-        const replyString = `**Uptime:** ${uptimeFormatted}\n${nodeMemoryUsageString}`;
+        const replyString = `** Uptime:** ${uptimeFormatted}\n${nodeMemoryUsageString}`;
         await _interaction.createMessage(replyString);
     }
 
@@ -47,7 +47,7 @@ export class StatusCommand implements ISlashCommand {
             uptimeString += `${minutes} minute${minutes === 1 ? '' : 's'}, `;
         }
         if (seconds > 0) {
-            uptimeString += `${seconds} second${seconds === 1 ? '' : 's'}`;
+            uptimeString += `${seconds} second${seconds === 1 ? '' : 's'} `;
         }
 
         return uptimeString;
@@ -60,11 +60,11 @@ export class StatusCommand implements ISlashCommand {
     private _getMemoryUsage(): string {
         const memoryUsage = process.memoryUsage();
         const memoryUsageString =
-            `**Heap total:** ${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB\n` +
-            `**Heap used:** ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB\n` +
-            `**External memory:** ${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB\n` +
-            `**RSS:** ${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB\n` +
-            `**ArrayBuffers:** ${memoryUsage.arrayBuffers}`;
+            `** Heap total:** ${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB\n` +
+            `** Heap used:** ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB\n` +
+            `** External memory:** ${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB\n` +
+            `** RSS:** ${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB\n` +
+            `** ArrayBuffers:** ${memoryUsage.arrayBuffers} `;
         return memoryUsageString;
     }
 }
