@@ -99,13 +99,9 @@ export class InteractionCreateEventHandler implements IEventHandler {
         error: Error
     ) {
         const embed = new EmbedBuilder()
-            .setAuthor(
-                interaction.member?.nick ?? interaction.member?.username ?? '',
-                interaction.member?.avatarURL ?? interaction.member?.defaultAvatarURL
-            )
             .setColor(0xf23f43)
-            .setDescription(`### <:ERROR_ICON:1129529400703074324> **Unknown error encountered**\nThis is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message}\`\`\``)
-            .setFooter(`Execution ID ${logger.getExecutionId()}`)
+            .setDescription(`### <:ERROR_ICON:1129529400703074324> **An unknown error encountered**\nThis is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message.slice(0, 1900)}\`\`\``)
+            .setFooter(`Execution ID: ${logger.getExecutionId()}`)
             .build();
 
         try {
