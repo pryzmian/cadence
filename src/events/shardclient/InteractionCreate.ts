@@ -104,7 +104,7 @@ export class InteractionCreateEventHandler implements IEventHandler {
                 interaction.member?.avatarURL ?? interaction.member?.defaultAvatarURL
             )
             .setColor(0xf23f43)
-            .setDescription(`<:ERROR_ICON:1129529400703074324> **Error encountered**\n\`\`\`${error.message}\`\`\``)
+            .setDescription(`### <:ERROR_ICON:1129529400703074324> **Unknown error encountered**\nThis is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message}\`\`\``)
             .setFooter(`Execution ID ${logger.getExecutionId()}`)
             .build();
 
