@@ -1,19 +1,28 @@
-import type { ShardClient } from '@core/ShardClient';
-import type { IEventManager } from '@events/_types/IEventManager';
+import type { IShardClient } from '@core/_types/IShardClient';
 import type { IEventHandler } from '@type/IEventHandler';
+import type { IEventManager } from '@type/IEventManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import fs from 'node:fs';
 import { join } from 'node:path';
 
 export class EventManager implements IEventManager {
     private _logger: ILoggerService;
-    private _shardClient: ShardClient;
+    private _shardClient: IShardClient;
+    private _playerService: IPlayerService;
     private _eventsPath: string;
     private _fs: typeof fs;
 
-    constructor(logger: ILoggerService, shardClient: ShardClient, eventsPath: string, fileSystemModule = fs) {
+    constructor(
+        logger: ILoggerService,
+        shardClient: IShardClient,
+        playerService: IPlayerService,
+        eventsPath: string,
+        fileSystemModule = fs
+    ) {
         this._logger = logger.updateContext({ module: 'events' });
         this._shardClient = shardClient;
+        this._playerService = playerService;
         this._eventsPath = eventsPath;
         this._fs = fileSystemModule;
         this._setMaxListeners(this._shardClient.getShardCount());
@@ -60,7 +69,12 @@ export class EventManager implements IEventManager {
         const eventHandlerModules = this._parseEventsFromFolder(folderPath);
         for (const eventHandler of eventHandlerModules) {
             this._shardClient.registerEventListener(eventHandler.name, eventHandler.once, (...args) => {
-                eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                eventHandler.run(
+                    this._logger.updateContext({ module: 'events' }),
+                    this._shardClient,
+                    this._playerService,
+                    ...args
+                );
             });
         }
     }
@@ -75,10 +89,20 @@ export class EventManager implements IEventManager {
         for (const eventHandler of eventHandlerModules) {
             eventHandler.once
                 ? process.once(eventHandler.name, (...args) => {
-                      eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                      eventHandler.run(
+                          this._logger.updateContext({ module: 'events' }),
+                          this._shardClient,
+                          this._playerService,
+                          ...args
+                      );
                   })
                 : process.on(eventHandler.name, (...args) => {
-                      eventHandler.run(this._logger.updateContext({ module: 'events' }), this._shardClient, ...args);
+                      eventHandler.run(
+                          this._logger.updateContext({ module: 'events' }),
+                          this._shardClient,
+                          this._playerService,
+                          ...args
+                      );
                   });
         }
     }

@@ -20,9 +20,17 @@
     "jest": {
         "preset": "ts-jest",
         "testEnvironment": "node",
-        "testMatch": ["**/__tests__/**/*.(spec|test).ts"],
-        "testPathIgnorePatterns": ["node_modules", "src/__tests__/_mocks"],
-        "coveragePathIgnorePatterns": ["node_modules", "src/__tests__/_mocks"],
+        "testMatch": [
+            "**/__tests__/**/*.(spec|test).ts"
+        ],
+        "testPathIgnorePatterns": [
+            "node_modules",
+            "src/__tests__/_mocks"
+        ],
+        "coveragePathIgnorePatterns": [
+            "node_modules",
+            "src/__tests__/_mocks"
+        ],
         "moduleNameMapper": {
             "^@core/(.*)$": "<rootDir>/src/core/$1",
             "^@events/(.*)$": "<rootDir>/src/events/$1",
@@ -58,9 +66,10 @@
         "cluster": "^0.7.7",
         "config": "^3.3.12",
         "discord-player": "^6.7.1",
-        "discord-player-youtubei": "^1.2.4",
+        "discord-player-youtubei": "^1.2.6",
+        "discord.js": "^14.15.3",
         "dotenv": "^16.4.5",
-        "drizzle-orm": "^0.32.1",
+        "drizzle-orm": "^0.33.0",
         "eris": "^0.17.2",
         "i18next": "^23.12.2",
         "i18next-fs-backend": "^2.3.2",
@@ -71,7 +80,7 @@
         "@biomejs/biome": "1.8.3",
         "@types/config": "^3.3.4",
         "@types/jest": "^29.5.12",
-        "@types/node": "^22.0.2",
+        "@types/node": "^22.2.0",
         "i18next-resources-for-ts": "^1.5.0",
         "jest": "^29.7.0",
         "ts-jest": "^29.2.4",

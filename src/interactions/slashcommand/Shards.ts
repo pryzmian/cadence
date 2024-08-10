@@ -1,6 +1,7 @@
-import type { IShardClient } from '@core/_types/IShardClient';
-import type { ISlashCommand, SlashCommandData } from '@interactions/_types/ISlashCommand';
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
+import type { IShardClient } from '@type/IShardClient';
+import type { ISlashCommand, SlashCommandData } from '@type/ISlashCommand';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import { EmbedBuilder } from '@utilities/EmbedBuilder';
 import { resolveColor } from '@utilities/EmbedUtilities';
 import type { CommandInteraction, Embed } from 'eris';
@@ -14,13 +15,16 @@ export class ShardsCommand implements ISlashCommand {
 
     public usageEmbed: Embed = new EmbedBuilder()
         //.setDescription('### <:RULE_ICON:1129488897034952816> Command usage\n\`/shards\`\nThis command shows the shard count of the bot.')
-        .setDescription('### <:RULE_ICON:1129488897034952816> \`/shards\`\nThis command shows the shard count of the bot.')
+        .setDescription(
+            '### <:RULE_ICON:1129488897034952816> `/shards`\nThis command shows the shard count of the bot.'
+        )
         .setColor(resolveColor('#5865F2'))
         .build();
 
     public async run(
         logger: ILoggerService,
         _shardClient: IShardClient,
+        _playerService: IPlayerService,
         interaction: CommandInteraction
     ): Promise<void> {
         logger.debug(`Handling '${this.data.name}' command...`);

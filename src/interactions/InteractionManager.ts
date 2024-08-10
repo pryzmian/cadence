@@ -1,5 +1,6 @@
-import type { IShardClient } from '@core/_types/IShardClient';
-import { MessageResponseFlags, type IInteractionManager } from '@interactions/_types/IInteractionManager';
+import type { IShardClient } from '@type/IShardClient';
+import { MessageResponseFlags, type IInteractionManager } from '@type/IInteractionManager';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import type { IAutocompleteCommand } from '@type/IAutocompleteCommand';
 import type { IMessageComponent } from '@type/IMessageComponent';
 import type { ILoggerService } from '@type/insights/ILoggerService';
@@ -57,6 +58,7 @@ export class InteractionManager implements IInteractionManager {
     public async handleCommandInteraction(
         logger: ILoggerService,
         shardClient: IShardClient,
+        playerService: IPlayerService,
         interaction: CommandInteraction
     ): Promise<void> {
         const interactionLogger = this._getInteractionLogger(logger, shardClient, interaction);
@@ -72,12 +74,13 @@ export class InteractionManager implements IInteractionManager {
             return;
         }
 
-        await slashCommand.run(logger, shardClient, interaction);
+        await slashCommand.run(logger, shardClient, playerService, interaction);
     }
 
     public async handleAutocompleteInteraction(
         logger: ILoggerService,
         shardClient: IShardClient,
+        _playerService: IPlayerService,
         interaction: AutocompleteInteraction
     ): Promise<void> {
         const interactionLogger = this._getInteractionLogger(logger, shardClient, interaction);
@@ -102,6 +105,7 @@ export class InteractionManager implements IInteractionManager {
     public async handleComponentInteraction(
         logger: ILoggerService,
         shardClient: IShardClient,
+        _playerService: IPlayerService,
         interaction: ComponentInteraction
     ): Promise<void> {
         const interactionLogger = this._getInteractionLogger(logger, shardClient, interaction);

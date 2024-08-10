@@ -1,23 +1,31 @@
 import type { ShardClientConfig } from '@config/types';
-import type { IShardClient } from '@core/_types/IShardClient';
 import { EventManager } from '@events/EventManager';
+import { usePlayerService } from '@services/player/PlayerService';
 import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IShardClient } from '@type/IShardClient';
 import type { ISlashCommand } from '@type/ISlashCommand';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import Eris, { Client } from 'eris';
-import { availableParallelism } from 'node:os';
 import fs from 'node:fs';
+import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 
 export class ShardClient implements IShardClient {
     private _logger: ILoggerService;
     private _shardClientConfig: ShardClientConfig;
     private _shardClient: Client;
+    private _playerService: IPlayerService;
     private _applicationId: string;
     private _interactionsPath: string;
     private _slashCommands = new Map<string, ISlashCommand>();
     private _fs: typeof fs;
 
-    constructor(logger: ILoggerService, shardClientConfig: ShardClientConfig, interactionsPath: string, fileSystemModule = fs) {
+    constructor(
+        logger: ILoggerService,
+        shardClientConfig: ShardClientConfig,
+        interactionsPath: string,
+        fileSystemModule = fs
+    ) {
         this._logger = logger;
         this._interactionsPath = interactionsPath;
         this._fs = fileSystemModule;
@@ -43,11 +51,13 @@ export class ShardClient implements IShardClient {
         };
 
         this.attachCommandsToClient();
+
+        this._playerService = usePlayerService(this);
     }
 
     public async start() {
         const eventsPath = join(__dirname, '..', 'events');
-        const eventManager = new EventManager(this._logger, this, eventsPath);
+        const eventManager = new EventManager(this._logger, this, this._playerService, eventsPath);
 
         this._logger.debug('Starting shard client...');
         try {
@@ -76,12 +86,12 @@ export class ShardClient implements IShardClient {
 
     public removeAllListeners(): void {
         this._logger.debug('Removing all event listeners...');
-        this._shardClient.removeAllListeners();
+        //this._shardClient.removeAllListeners();
     }
 
     public setMaxListeners(maxListeners: number): void {
         this._logger.debug(`Setting max listeners to ${maxListeners}...`);
-        this._shardClient.setMaxListeners(maxListeners);
+        //this._shardClient.setMaxListeners(maxListeners);
     }
 
     public getShardId(guildId?: string): number {
@@ -110,7 +120,7 @@ export class ShardClient implements IShardClient {
     public async deployCommand(command: ISlashCommand): Promise<Eris.ApplicationCommand> {
         const slashCommandData: Eris.ChatInputApplicationCommand = {
             ...command.data,
-            // biome-ignore lint/style/useNamingConvention: <explanation>
+            // biome-ignore lint/style/useNamingConvention:
             application_id: this._applicationId,
             type: Eris.Constants.ApplicationCommandTypes.CHAT_INPUT,
             id: command.data.name
