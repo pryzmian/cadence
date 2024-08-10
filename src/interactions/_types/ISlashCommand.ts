@@ -1,5 +1,6 @@
-import type { IShardClient } from '@core/_types/IShardClient';
 import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IShardClient } from '@type/IShardClient';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import type Eris from 'eris';
 import type { CommandInteraction, Embed } from 'eris';
 
@@ -8,5 +9,10 @@ export type SlashCommandData = {} & Omit<Eris.ChatInputApplicationCommand, 'appl
 export interface ISlashCommand {
     data: SlashCommandData;
     usageEmbed?: Embed;
-    run: (logger: ILoggerService, shardClient: IShardClient, interaction: CommandInteraction) => Promise<void>;
+    run: (
+        logger: ILoggerService,
+        shardClient: IShardClient,
+        playerService: IPlayerService,
+        interaction: CommandInteraction
+    ) => Promise<void>;
 }

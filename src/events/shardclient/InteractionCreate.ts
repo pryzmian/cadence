@@ -1,11 +1,12 @@
-import type { IShardClient } from '@core/_types/IShardClient';
 import { InteractionManager } from '@interactions/InteractionManager';
-import type { IInteractionManager } from '@interactions/_types/IInteractionManager';
 import { useLogger } from '@services/insights/LoggerService';
 import type { IEventHandler } from '@type/IEventHandler';
 import { ShardEvents } from '@type/IEventHandler';
+import type { IInteractionManager } from '@type/IInteractionManager';
 import { MessageResponseFlags } from '@type/IInteractionManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IShardClient } from '@type/IShardClient';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import { EmbedBuilder } from '@utilities/EmbedBuilder';
 import {
     Constants,
@@ -20,39 +21,47 @@ import { join } from 'node:path';
 export class InteractionCreateEventHandler implements IEventHandler {
     public name = ShardEvents.InteractionCreate;
     public once = false;
-    private _interactionHandler: IInteractionManager = new InteractionManager(
+    private _interactionManager: IInteractionManager = new InteractionManager(
         useLogger(),
         join(__dirname, '..', '..', 'interactions')
     );
 
-    public async run(logger: ILoggerService, shardClient: IShardClient, interaction: Interaction) {
+    public async run(
+        logger: ILoggerService,
+        shardClient: IShardClient,
+        playerService: IPlayerService,
+        interaction: Interaction
+    ) {
         logger.debug(`Event '${this.name}' received: Interaction ID: ${interaction.id}`);
 
         try {
             switch (interaction.type) {
                 case Constants.InteractionTypes.APPLICATION_COMMAND:
-                    await this._interactionHandler.handleCommandInteraction(
+                    await this._interactionManager.handleCommandInteraction(
                         logger,
                         shardClient,
+                        playerService,
                         interaction as CommandInteraction
                     );
                     break;
                 case Constants.InteractionTypes.APPLICATION_COMMAND_AUTOCOMPLETE:
-                    await this._interactionHandler.handleAutocompleteInteraction(
+                    await this._interactionManager.handleAutocompleteInteraction(
                         logger,
                         shardClient,
+                        playerService,
                         interaction as AutocompleteInteraction
                     );
                     break;
                 case Constants.InteractionTypes.MESSAGE_COMPONENT:
-                    await this._interactionHandler.handleComponentInteraction(
+                    await this._interactionManager.handleComponentInteraction(
                         logger,
                         shardClient,
+                        playerService,
                         interaction as ComponentInteraction
                     );
                     break;
                 case Constants.InteractionTypes.PING:
-                    await this._interactionHandler.handlePingInteraction(
+                    await this._interactionManager.handlePingInteraction(
                         logger,
                         shardClient,
                         interaction as PingInteraction
@@ -100,7 +109,9 @@ export class InteractionCreateEventHandler implements IEventHandler {
     ) {
         const embed = new EmbedBuilder()
             .setColor(0xf23f43)
-            .setDescription(`### <:ERROR_ICON:1129529400703074324> **An unknown error encountered**\nThis is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message.slice(0, 1900)}\`\`\``)
+            .setDescription(
+                `### <:ERROR_ICON:1129529400703074324> **An unknown error encountered**\nThis is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message.slice(0, 1900)}\`\`\``
+            )
             .setFooter(`Execution ID: ${logger.getExecutionId()}`)
             .build();
 

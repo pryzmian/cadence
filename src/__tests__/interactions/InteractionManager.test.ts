@@ -1,6 +1,7 @@
 import type { IShardClient } from '@core/_types/IShardClient';
 import { InteractionManager } from '@interactions/InteractionManager';
 import { MockLoggerService } from '@mocks/MockLoggerService';
+import { IPlayerService } from '@services/_types/player/IPlayerService';
 import { MessageResponseFlags } from '@type/IInteractionManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { AutocompleteInteraction, CommandInteraction, ComponentInteraction, PingInteraction } from 'eris';
@@ -24,6 +25,7 @@ describe('InteractionManager', () => {
     let interactionManager: InteractionManager;
     let mockLoggerService: ILoggerService;
     let mockShardClient: IShardClient;
+    let mockPlayerService: IPlayerService;
     let mockCommandInteraction: CommandInteraction;
     let mockAutocompleteInteraction: AutocompleteInteraction;
     let mockComponentInteraction: ComponentInteraction;
@@ -34,6 +36,7 @@ describe('InteractionManager', () => {
         mockShardClient = {
             getShardId: jest.fn().mockReturnValue(0)
         } as unknown as IShardClient;
+        mockPlayerService = {} as IPlayerService;
         fsMock.readdirSync.mockClear();
         fsMock.readdirSync.mockReturnValue(['slashcommand', 'autocomplete', 'component']);
         interactionManager = new InteractionManager(mockLoggerService, interactionsPath, fsMock);
@@ -98,6 +101,7 @@ describe('InteractionManager', () => {
             await interactionManager.handleCommandInteraction(
                 mockLoggerService,
                 mockShardClient,
+                mockPlayerService,
                 mockCommandInteraction
             );
             expect(mockSlashCommand.run).toHaveBeenCalled();
@@ -112,6 +116,7 @@ describe('InteractionManager', () => {
             await interactionManager.handleCommandInteraction(
                 mockLoggerService,
                 mockShardClient,
+                mockPlayerService,
                 mockCommandInteraction
             );
 
@@ -161,6 +166,7 @@ describe('InteractionManager', () => {
             await interactionManager.handleAutocompleteInteraction(
                 mockLoggerService,
                 mockShardClient,
+                mockPlayerService,
                 mockAutocompleteInteraction
             );
             expect(mockAutocompleteCommand.run).toHaveBeenCalled();
@@ -175,6 +181,7 @@ describe('InteractionManager', () => {
             await interactionManager.handleAutocompleteInteraction(
                 mockLoggerService,
                 mockShardClient,
+                mockPlayerService,
                 mockAutocompleteInteraction
             );
 
@@ -226,6 +233,7 @@ describe('InteractionManager', () => {
             await interactionManager.handleComponentInteraction(
                 mockLoggerService,
                 mockShardClient,
+                mockPlayerService,
                 mockComponentInteraction
             );
             expect(mockComponent.run).toHaveBeenCalled();
@@ -240,6 +248,7 @@ describe('InteractionManager', () => {
             await interactionManager.handleComponentInteraction(
                 mockLoggerService,
                 mockShardClient,
+                mockPlayerService,
                 mockComponentInteraction
             );
 

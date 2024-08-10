@@ -1,6 +1,7 @@
-import type { IShardClient } from '@core/_types/IShardClient';
-import type { ILoggerService } from '@services/_types/insights/ILoggerService';
+import type { IShardClient } from '@type/IShardClient';
 import type { ISlashCommand, SlashCommandData } from '@type/ISlashCommand';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IPlayerService } from '@type/player/IPlayerService';
 import { ButtonBuilder } from '@utilities/ButtonBuilder';
 import { EmbedBuilder } from '@utilities/EmbedBuilder';
 import { resolveColor } from '@utilities/EmbedUtilities';
@@ -15,18 +16,22 @@ export class HelpCommand implements ISlashCommand {
     };
 
     public async run(
-        logger: ILoggerService, shardClient: IShardClient, interaction: CommandInteraction
+        logger: ILoggerService,
+        shardClient: IShardClient,
+        _playerService: IPlayerService,
+        interaction: CommandInteraction
     ): Promise<void> {
         logger.debug(`Handling '${this.data.name}' command...`);
 
         const commands: Map<string, ISlashCommand> = this.getCommands(shardClient);
         logger.debug(`Found ${commands.size} commands: ${Array.from(commands.keys()).join(', ')}`);
 
-
-        const embedCommandListString = Array.from(commands.keys()).map((commandName) => {
-            const command = commands.get(commandName);
-            return `- **\`/${command?.data.name}\`** - ${command?.data.description}`;
-        }).join('\n');
+        const embedCommandListString = Array.from(commands.keys())
+            .map((commandName) => {
+                const command = commands.get(commandName);
+                return `- **\`/${command?.data.name}\`** - ${command?.data.description}`;
+            })
+            .join('\n');
 
         const embed = new EmbedBuilder()
             .setColor(resolveColor('#5865F2'))
@@ -62,13 +67,15 @@ export class HelpCommand implements ISlashCommand {
                 name: 'BOT_ICON',
                 id: '1129488865867071669'
             })
-            .setURL('https://discord.com/oauth2/authorize?client_id=1125742835946237992&permissions=0&scope=bot%20applications.commands');
+            .setURL(
+                'https://discord.com/oauth2/authorize?client_id=1125742835946237992&permissions=0&scope=bot%20applications.commands'
+            );
 
         if (commandUsageSelectMenuOptions.length > 0) {
             const selectMenu = new SelectMenubuilder()
                 .setCustomId('SelectMenu_HelpCommand_Usage')
                 .setPlaceholder('Select a command for extra details.')
-                .setOptions(commandUsageSelectMenuOptions)
+                .setOptions(commandUsageSelectMenuOptions);
 
             await interaction.createMessage({
                 embeds: [embed.build()],
@@ -83,10 +90,12 @@ export class HelpCommand implements ISlashCommand {
         } else {
             await interaction.createMessage({
                 embeds: [embed.build()],
-                components: [{
-                    type: Eris.Constants.ComponentTypes.ACTION_ROW,
-                    components: [supportServerLinkButton.build(), addBotLinkButton.build()]
-                }]
+                components: [
+                    {
+                        type: Eris.Constants.ComponentTypes.ACTION_ROW,
+                        components: [supportServerLinkButton.build(), addBotLinkButton.build()]
+                    }
+                ]
             });
         }
     }

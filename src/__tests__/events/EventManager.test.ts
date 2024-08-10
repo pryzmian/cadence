@@ -1,6 +1,8 @@
+import { IShardClient } from '@core/_types/IShardClient';
 import type { ShardClient } from '@core/ShardClient';
 import { EventManager } from '@events/EventManager';
 import { MockLoggerService } from '@mocks/MockLoggerService';
+import { IPlayerService } from '@services/_types/player/IPlayerService';
 import type { IEventHandler } from '@type/IEventHandler';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import fs from 'node:fs';
@@ -21,7 +23,8 @@ const fsMock = {
 describe('EventManager', () => {
     let eventManager: EventManager;
     let mockLoggerService: ILoggerService;
-    let mockShardClient: ShardClient;
+    let mockShardClient: IShardClient;
+    let mockPlayerService: IPlayerService;
 
     beforeEach(() => {
         mockLoggerService = new MockLoggerService();
@@ -31,9 +34,10 @@ describe('EventManager', () => {
             removeAllListeners: jest.fn(),
             setMaxListeners: jest.fn()
         } as unknown as ShardClient;
+        mockPlayerService = {} as IPlayerService;
         fsMock.readdirSync.mockClear();
         fsMock.readdirSync.mockReturnValue(['shardclient', 'player', 'process']);
-        eventManager = new EventManager(mockLoggerService, mockShardClient, eventsPath, fsMock);
+        eventManager = new EventManager(mockLoggerService, mockShardClient, mockPlayerService, eventsPath, fsMock);
 
         jest.spyOn(process, 'on').mockImplementation(jest.fn());
         jest.spyOn(process, 'once').mockImplementation(jest.fn());
@@ -45,7 +49,13 @@ describe('EventManager', () => {
     });
 
     it('should initialize with provided file system module', () => {
-        const eventManager = new EventManager(mockLoggerService, mockShardClient, eventsPath, fsMock);
+        const eventManager = new EventManager(
+            mockLoggerService,
+            mockShardClient,
+            mockPlayerService,
+            eventsPath,
+            fsMock
+        );
         expect(mockLoggerService.updateContext).toHaveBeenCalledWith({ module: 'events' });
         expect(mockLoggerService.debug).toHaveBeenCalledWith(`Using path '${eventsPath}' for event handlers.`);
         expect(eventManager['_fs']).toBe(fsMock);
@@ -110,7 +120,12 @@ describe('EventManager', () => {
             const args = ['arg1', 'arg2'];
             eventListener(...args);
 
-            expect(mockEventHandler.run).toHaveBeenCalledWith(mockLoggerService, mockShardClient, ...args);
+            expect(mockEventHandler.run).toHaveBeenCalledWith(
+                mockLoggerService,
+                mockShardClient,
+                mockPlayerService,
+                ...args
+            );
         });
     });
 
@@ -136,7 +151,12 @@ describe('EventManager', () => {
             const args = ['arg1', 'arg2'];
             eventListener(...args);
 
-            expect(mockEventHandler.run).toHaveBeenCalledWith(mockLoggerService, mockShardClient, ...args);
+            expect(mockEventHandler.run).toHaveBeenCalledWith(
+                mockLoggerService,
+                mockShardClient,
+                mockPlayerService,
+                ...args
+            );
         });
 
         it('should load process event handlers with process.once', () => {
@@ -160,7 +180,12 @@ describe('EventManager', () => {
             const args = ['arg1', 'arg2'];
             eventListener(...args);
 
-            expect(mockEventHandler.run).toHaveBeenCalledWith(mockLoggerService, mockShardClient, ...args);
+            expect(mockEventHandler.run).toHaveBeenCalledWith(
+                mockLoggerService,
+                mockShardClient,
+                mockPlayerService,
+                ...args
+            );
         });
     });
 
