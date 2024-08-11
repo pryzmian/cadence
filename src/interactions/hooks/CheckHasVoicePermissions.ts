@@ -27,6 +27,21 @@ export class CheckHasVoicePermissions implements ISlashCommandHook {
 
         const guild = shardClient.getClient().guilds.get(interaction.guildID ?? '');
         const voiceChannel = guild?.channels.get(voiceChannelId ?? '');
+        if (!voiceChannel) {
+            await interaction.createMessage({
+                embeds: [
+                    warningEmbed(
+                        'Not in a voice channel',
+                        'You need to be in a voice channel to perform this action.'
+                    ).build()
+                ],
+                flags: MessageResponseFlags.Ephemeral
+            });
+
+            logger.debug('Not in a voice channel');
+            return false;
+        }
+
         const botPermissions = voiceChannel?.permissionsOf(shardClient.getClient().user.id);
         const missingPermissions = permissionsNeeded.filter((permission) => !botPermissions?.has(permission.value));
 
