@@ -85,20 +85,22 @@ export class TestCommand implements ISlashCommand {
         }
 
         const titleIcon = '<a:AUDIO_PLAYING_GIF_SUCCESS:1129545909055795270>'; // <a:AUDIO_PLAYING_GIF_SUCCESS:1129545909055795270>
-        const embedTitle = `### ${titleIcon} ${track?.queue?.tracks?.size ?? 0 > 1 ? 'Added to queue' : 'Started playing'}`;
         const trackDuration = `**\`${track.duration}\`**`;
         const trackTitleUrl = `[**${track.title}**](${track.url})`;
         const thumbnailUrl = `${track.thumbnail ?? track.raw.thumbnail ?? ''}`;
         const trackSourceString =
             track.source === 'youtube'
-                ? '<:SOURCE_YOUTUBE:1130187076999053424> **YouTube**'
-                : '<:SOURCE_SPOTIFY:1130187072192389190> **Spotify**';
+                ? '<:SOURCE_YOUTUBE:1130187076999053424>'
+                : '<:SOURCE_SPOTIFY:1130187072192389190>';
+
+        const embedTitle = `### ${titleIcon} ${track?.queue?.tracks?.size ?? 0 > 1 ? 'Added to queue' : 'Started playing'} from ${trackSourceString}`;
+
 
         await interaction.createMessage({
             embeds: [
                 new EmbedBuilder()
                     .setColor(resolveColor('#23A55A'))
-                    .setDescription(`${embedTitle}\n${trackDuration} ${trackTitleUrl}\n\n-# ${trackSourceString}`)
+                    .setDescription(`${embedTitle}\n${trackDuration} ${trackTitleUrl}`)
                     .setThumbnail(thumbnailUrl)
                     .build()
             ]
