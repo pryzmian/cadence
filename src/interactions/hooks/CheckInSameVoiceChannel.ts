@@ -13,12 +13,6 @@ export class CheckInSameVoiceChannel implements ISlashCommandHook {
         playerService: IPlayerService,
         interaction: CommandInteraction
     ) {
-        const queue = playerService.useQueue(interaction);
-        if (!queue.dispatcher) {
-            logger.debug('No dispatcher found');
-            return true;
-        }
-
         const voiceChannelId = interaction.member?.voiceState?.channelID;
         if (!voiceChannelId) {
             await interaction.createMessage({
@@ -33,6 +27,12 @@ export class CheckInSameVoiceChannel implements ISlashCommandHook {
 
             logger.debug('Not in a voice channel');
             return false;
+        }
+
+        const queue = playerService.useQueue(interaction);
+        if (!queue.dispatcher) {
+            logger.debug('No dispatcher found');
+            return true;
         }
 
         if (queue.dispatcher.channel.id !== voiceChannelId) {

@@ -15,6 +15,10 @@ export class UnknownEventHandler implements IEventHandler {
         packet: unknown,
         shardId: number
     ) {
+        if ((packet as { t?: string })?.t === 'VOICE_CHANNEL_STATUS_UPDATE') {
+            return;
+        }
+
         logger.debug(packet, `Event '${this.name}' received: Shard with ID ${shardId} received an unknown packet.`);
     }
 }
