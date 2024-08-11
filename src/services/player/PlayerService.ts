@@ -53,15 +53,18 @@ export class PlayerService implements IPlayerService {
         interaction: CommandInteraction,
         searchQuery: string,
         options?: PlayerNodeInitializerOptions<unknown>
-    ): Promise<undefined | Track<unknown>> {
+    ): Promise<null | Track<unknown>> {
         const voiceChannel = interaction.member?.voiceState?.channelID;
         if (!voiceChannel) {
-            return;
+            return null;
         }
 
-        // biome-ignore lint/style/useConst:
         let track: undefined | Track<unknown>;
-        ({ track } = await this._player.play(voiceChannel, searchQuery, options));
+        try {
+            ({ track } = await this._player.play(voiceChannel, searchQuery, options));
+        } catch (error) {
+            return null;
+        }
 
         return track;
     }

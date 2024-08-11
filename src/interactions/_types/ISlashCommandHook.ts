@@ -1,7 +1,7 @@
-import { IShardClient } from "@type/IShardClient";
-import { ILoggerService } from "@type/insights/ILoggerService";
-import { IPlayerService } from "@type/player/IPlayerService";
-import { CommandInteraction } from "eris";
+import type { IShardClient } from '@type/IShardClient';
+import type { ILoggerService } from '@type/insights/ILoggerService';
+import type { IPlayerService } from '@type/player/IPlayerService';
+import type { CommandInteraction } from 'eris';
 
 export interface ISlashCommandHook {
     beforeRun?: (

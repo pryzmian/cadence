@@ -10,7 +10,7 @@ export type SlashCommandData = {} & Omit<Eris.ChatInputApplicationCommand, 'appl
 export interface ISlashCommand {
     data: SlashCommandData;
     usageEmbed?: Embed;
-    hooks? : ISlashCommandHook[];
+    hooks?: ISlashCommandHook[];
     run: (
         logger: ILoggerService,
         shardClient: IShardClient,
