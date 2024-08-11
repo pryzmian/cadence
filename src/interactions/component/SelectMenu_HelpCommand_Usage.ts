@@ -10,7 +10,7 @@ export class SelectMenuHelpCommandUsage implements IMessageComponent {
         custom_id: 'SelectMenu_HelpCommand_Usage',
         // biome-ignore lint/style/useNamingConvention:
         component_type: Eris.Constants.ComponentTypes.SELECT_MENU
-    }
+    };
 
     public async run(
         logger: ILoggerService,

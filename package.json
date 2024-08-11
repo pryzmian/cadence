@@ -20,17 +20,9 @@
     "jest": {
         "preset": "ts-jest",
         "testEnvironment": "node",
-        "testMatch": [
-            "**/__tests__/**/*.(spec|test).ts"
-        ],
-        "testPathIgnorePatterns": [
-            "node_modules",
-            "src/__tests__/_mocks"
-        ],
-        "coveragePathIgnorePatterns": [
-            "node_modules",
-            "src/__tests__/_mocks"
-        ],
+        "testMatch": ["**/__tests__/**/*.(spec|test).ts"],
+        "testPathIgnorePatterns": ["node_modules", "src/__tests__/_mocks"],
+        "coveragePathIgnorePatterns": ["node_modules", "src/__tests__/_mocks"],
         "moduleNameMapper": {
             "^@core/(.*)$": "<rootDir>/src/core/$1",
             "^@events/(.*)$": "<rootDir>/src/events/$1",
@@ -62,10 +54,10 @@
         "restart": "pnpm build && pnpm start"
     },
     "dependencies": {
-        "@discord-player/extractor": "^4.5.0",
+        "@discord-player/extractor": "^4.5.1",
         "cluster": "^0.7.7",
         "config": "^3.3.12",
-        "discord-player": "^6.7.1",
+        "discord-player": "6.8.0-dev.0",
         "discord-player-youtubei": "^1.2.6",
         "discord.js": "^14.15.3",
         "dotenv": "^16.4.5",

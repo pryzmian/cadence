@@ -32,10 +32,14 @@ const startShardWorker = async (): Promise<void> => {
     const interactionsPath = join(__dirname, '..', 'interactions');
     const shardWorkerConfig = workerData as ShardWorkerConfig;
     const shardClientConfig: ShardClientConfig = config.get<ShardClientConfig>('shardClientConfig');
-    const shardClient = new ShardClient(logger, {
-        ...shardWorkerConfig,
-        ...shardClientConfig
-    }, interactionsPath);
+    const shardClient = new ShardClient(
+        logger,
+        {
+            ...shardWorkerConfig,
+            ...shardClientConfig
+        },
+        interactionsPath
+    );
     await shardClient.start();
 
     logger.info('Shard worker started successfully.');

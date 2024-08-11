@@ -166,4 +166,8 @@ export class ShardClient implements IShardClient {
 
         this._slashCommands = slashCommands;
     }
+
+    public getClient(): Eris.Client {
+        return this._shardClient;
+    }
 }

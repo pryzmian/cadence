@@ -8,7 +8,7 @@ export class ButtonBuilder {
             type: Eris.Constants.ComponentTypes.BUTTON,
             // biome-ignore lint/style/useNamingConvention:
             custom_id: `Button_${Math.random().toString(36).substring(7)}`,
-            style: Eris.Constants.ButtonStyles.SECONDARY,
+            style: Eris.Constants.ButtonStyles.SECONDARY
         };
     }
 
@@ -66,4 +66,3 @@ export class ButtonBuilder {
         return this.button;
     }
 }
-
