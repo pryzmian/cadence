@@ -1,12 +1,7 @@
 {
     "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
     "files": {
-        "ignore": [
-            "**/dist/",
-            "**/coverage/*",
-            "**/node_modules/",
-            "**/dist/**/*.js"
-        ]
+        "ignore": ["**/dist/", "**/coverage/*", "**/node_modules/", "**/dist/**/*.js"]
     },
     "formatter": {
         "enabled": true,
@@ -76,18 +71,12 @@
                 "noRestrictedGlobals": {
                     "level": "error",
                     "options": {
-                        "deniedGlobals": [
-                            "Buffer"
-                        ]
+                        "deniedGlobals": ["Buffer"]
                     }
                 }
             }
         },
-        "ignore": [
-            "**/__tests__/**/*.ts",
-            "**/locales/**/*.d.ts",
-            "**/src/services/insights/LoggerService.ts"
-        ]
+        "ignore": ["**/__tests__/**/*.ts", "**/locales/**/*.d.ts", "**/src/services/insights/LoggerService.ts"]
     },
     "javascript": {
         "formatter": {

@@ -1,4 +1,4 @@
-import Eris, { type SelectMenuOptions, type SelectMenu, type PartialEmoji, type ActionRow } from "eris";
+import Eris, { type SelectMenuOptions, type SelectMenu, type PartialEmoji, type ActionRow } from 'eris';
 
 export class SelectMenubuilder {
     private selectMenu: SelectMenu;
@@ -65,7 +65,7 @@ export class SelectMenuOptionBuilder {
     constructor() {
         this.options = {
             label: '',
-            value: '',
+            value: ''
         };
     }
 

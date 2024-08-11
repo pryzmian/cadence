@@ -7,7 +7,7 @@ import { MessageResponseFlags } from '@type/IInteractionManager';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { IShardClient } from '@type/IShardClient';
 import type { IPlayerService } from '@type/player/IPlayerService';
-import { EmbedBuilder } from '@utilities/EmbedBuilder';
+import { errorEmbed } from '@utilities/EmbedUtilities';
 import {
     Constants,
     type AutocompleteInteraction,
@@ -107,13 +107,11 @@ export class InteractionCreateEventHandler implements IEventHandler {
         interaction: CommandInteraction | ComponentInteraction,
         error: Error
     ) {
-        const embed = new EmbedBuilder()
-            .setColor(0xf23f43)
-            .setDescription(
-                `### <:ERROR_ICON:1129529400703074324> **An unknown error encountered**\nThis is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message.slice(0, 1900)}\`\`\``
-            )
-            .setFooter(`Execution ID: ${logger.getExecutionId()}`)
-            .build();
+        const embed = errorEmbed(
+            'An unknown error occured',
+            `This is probably not your fault. Here are some technical details about the error:\n\`\`\`${error.message.slice(0, 1900)}\`\`\``,
+            logger.getExecutionId()
+        ).build();
 
         try {
             await interaction.createMessage({

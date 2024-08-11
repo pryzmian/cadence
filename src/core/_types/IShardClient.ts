@@ -15,4 +15,5 @@ export interface IShardClient {
     deleteCommands(): Promise<void>;
     getSlashCommands(): Map<string, ISlashCommand>;
     getSlashCommandByName(name: string): ISlashCommand | undefined;
+    getClient(): Eris.Client;
 }

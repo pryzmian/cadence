@@ -6,9 +6,9 @@ import {
     Player,
     type PlayerNodeInitializerOptions,
     type Track,
-    useQueue
+    useQueue,
+    createErisCompat
 } from 'discord-player';
-import Discord, { Client, type GuildVoiceChannelResolvable } from 'discord.js';
 import type { CommandInteraction } from 'eris';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 
@@ -39,20 +39,9 @@ function registerExtractors(player: Player): void {
 
 export class PlayerService implements IPlayerService {
     private _player: Player;
-    private _djsClient: Client;
 
     constructor(_shardClient: IShardClient) {
-        // Temporary dependency on Discord.js until discord-player supports Eris
-        // :'(
-        const djsClient = new Client({
-            intents: [Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildVoiceStates]
-        });
-        (async () => {
-            await djsClient.login(process.env.DISCORD_BOT_TOKEN);
-        })();
-        this._djsClient = djsClient;
-
-        this._player = new Player(djsClient, {
+        this._player = new Player(createErisCompat(_shardClient.getClient()), {
             useLegacyFFmpeg: false,
             skipFFmpeg: false
         });
@@ -65,13 +54,7 @@ export class PlayerService implements IPlayerService {
         searchQuery: string,
         options?: PlayerNodeInitializerOptions<unknown>
     ): Promise<undefined | Track<unknown>> {
-        const djsGuild = await this._djsClient.guilds.fetch(interaction.guildID || '');
-        if (!djsGuild) {
-            return;
-        }
-        const voiceChannel = this._djsClient.channels.cache.get(
-            interaction?.member?.voiceState?.channelID || ''
-        ) as GuildVoiceChannelResolvable;
+        const voiceChannel = interaction.member?.voiceState?.channelID;
         if (!voiceChannel) {
             return;
         }

@@ -3,7 +3,7 @@ import type { ISlashCommand, SlashCommandData } from '@type/ISlashCommand';
 import type { ILoggerService } from '@type/insights/ILoggerService';
 import type { IPlayerService } from '@type/player/IPlayerService';
 import { EmbedBuilder } from '@utilities/EmbedBuilder';
-import { resolveColor } from '@utilities/EmbedUtilities';
+import { resolveColor, successEmbed, warningEmbed } from '@utilities/EmbedUtilities';
 import type { Track } from 'discord-player';
 import type { CommandInteraction, Embed, InteractionDataOptionWithValue } from 'eris';
 import Eris from 'eris';
@@ -42,7 +42,7 @@ export class TestCommand implements ISlashCommand {
 
         if (!searchQuery) {
             await interaction.createMessage({
-                embeds: [new EmbedBuilder().setDescription('no search query provided').build()]
+                embeds: [warningEmbed('No search query', 'You must provide a search query.').build()]
             });
             return;
         }
@@ -51,7 +51,7 @@ export class TestCommand implements ISlashCommand {
             const queue = playerService.useQueue(interaction);
             queue.node.skip();
             await interaction.createMessage({
-                embeds: [new EmbedBuilder().setDescription('skipped track').build()]
+                embeds: [successEmbed('Skipped track', 'Skipped the current track.').build()]
             });
             return;
         }
@@ -59,7 +59,20 @@ export class TestCommand implements ISlashCommand {
         if (searchQuery.toLowerCase() === 'leave') {
             playerService.destroyQueue(interaction);
             await interaction.createMessage({
-                embeds: [new EmbedBuilder().setDescription('destroyed queue').build()]
+                embeds: [successEmbed('Left voice channel', 'Left the voice channel and destroyed queue.').build()]
+            });
+            return;
+        }
+
+        const voiceChannel = interaction.member?.voiceState?.channelID;
+        if (!voiceChannel) {
+            await interaction.createMessage({
+                embeds: [
+                    warningEmbed(
+                        'Not in a voice channel',
+                        'You must be in a voice channel to use this command.'
+                    ).build()
+                ]
             });
             return;
         }
@@ -68,12 +81,14 @@ export class TestCommand implements ISlashCommand {
 
         if (!track) {
             await interaction.createMessage({
-                embeds: [new EmbedBuilder().setDescription('no track found').build()]
+                embeds: [
+                    warningEmbed('No tracks found', 'No tracks were found with the provided search query.').build()
+                ]
             });
             return;
         }
 
-        const titleIcon = '<a:AUDIO_PLAYING_GIF:1129500776818016367>'; // <a:AUDIO_PLAYING_GIF_SUCCESS:1129545909055795270>
+        const titleIcon = '<a:AUDIO_PLAYING_GIF_SUCCESS:1129545909055795270>'; // <a:AUDIO_PLAYING_GIF_SUCCESS:1129545909055795270>
         const embedTitle = `### ${titleIcon} ${track?.queue?.tracks?.size ?? 0 > 1 ? 'Added to queue' : 'Started playing'}`;
         const trackDuration = `**\`${track.duration}\`**`;
         const trackTitleUrl = `[**${track.title}**](${track.url})`;
@@ -86,7 +101,7 @@ export class TestCommand implements ISlashCommand {
         await interaction.createMessage({
             embeds: [
                 new EmbedBuilder()
-                    .setColor(resolveColor('#5865F2'))
+                    .setColor(resolveColor('#23A55A'))
                     .setDescription(`${embedTitle}\n${trackDuration} ${trackTitleUrl}\n\n-# ${trackSourceString}`)
                     .setThumbnail(thumbnailUrl)
                     .build()
