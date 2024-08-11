@@ -1,3 +1,5 @@
+import type { ISlashCommandHook } from '@interactions/_types/ISlashCommandHook';
+import { acknowledgeInteraction } from '@interactions/hooks/AcknowledgeInteraction';
 import type { IShardClient } from '@type/IShardClient';
 import type { ISlashCommand, SlashCommandData } from '@type/ISlashCommand';
 import type { ILoggerService } from '@type/insights/ILoggerService';
@@ -7,6 +9,8 @@ import { resolveColor, successEmbed, warningEmbed } from '@utilities/EmbedUtilit
 import type { Track } from 'discord-player';
 import type { CommandInteraction, Embed, InteractionDataOptionWithValue } from 'eris';
 import Eris from 'eris';
+import { checkInSameVoiceChannel } from '@interactions/hooks/CheckInSameVoiceChannel';
+import { checkHasVoicePermissions } from '@interactions/hooks/CheckHasVoicePermissions';
 
 export class TestCommand implements ISlashCommand {
     public data: SlashCommandData = {
@@ -26,6 +30,8 @@ export class TestCommand implements ISlashCommand {
         .setDescription('### <:RULE_ICON:1129488897034952816> `/test`\nThis command is for testing purposes.')
         .setColor(resolveColor('#5865F2'))
         .build();
+
+    public hooks: ISlashCommandHook[] = [checkInSameVoiceChannel, checkHasVoicePermissions, acknowledgeInteraction];
 
     public async run(
         logger: ILoggerService,
@@ -64,26 +70,16 @@ export class TestCommand implements ISlashCommand {
             return;
         }
 
-        const voiceChannel = interaction.member?.voiceState?.channelID;
-        if (!voiceChannel) {
-            await interaction.createMessage({
-                embeds: [
-                    warningEmbed(
-                        'Not in a voice channel',
-                        'You must be in a voice channel to use this command.'
-                    ).build()
-                ]
-            });
-            return;
-        }
-
-        const track: Track | undefined = await playerService.play(interaction, searchQuery);
-
+        const track: Track | null = await playerService.play(interaction, searchQuery);
         if (!track) {
             await interaction.createMessage({
                 embeds: [
-                    warningEmbed('No tracks found', 'No tracks were found with the provided search query.').build()
-                ]
+                    warningEmbed(
+                        'No results found',
+                        `No tracks were found with the provided search query:\n**\`${searchQuery}\`**`
+                    ).build()
+                ],
+                flags: Eris.Constants.MessageFlags.EPHEMERAL
             });
             return;
         }

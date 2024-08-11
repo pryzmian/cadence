@@ -8,6 +8,7 @@ import type { ISlashCommand } from '@type/ISlashCommand';
 import type { AutocompleteInteraction, CommandInteraction, ComponentInteraction, PingInteraction } from 'eris';
 import fs from 'node:fs';
 import { join } from 'node:path';
+import type { ISlashCommandHook } from './_types/ISlashCommandHook';
 
 export class InteractionManager implements IInteractionManager {
     private _logger: ILoggerService;
@@ -74,7 +75,38 @@ export class InteractionManager implements IInteractionManager {
             return;
         }
 
-        await slashCommand.run(logger, shardClient, playerService, interaction);
+        const shouldContinueExecution = await this.runCommandHooks(
+            slashCommand.hooks,
+            'beforeRun',
+            logger,
+            shardClient,
+            playerService,
+            interaction
+        );
+        if (shouldContinueExecution) {
+            await slashCommand.run(logger, shardClient, playerService, interaction);
+            await this.runCommandHooks(slashCommand.hooks, 'afterRun', logger, shardClient, playerService, interaction);
+        }
+    }
+
+    private async runCommandHooks(
+        hooks: ISlashCommandHook[] | undefined,
+        timing: 'beforeRun' | 'afterRun',
+        logger: ILoggerService,
+        shardClient: IShardClient,
+        playerService: IPlayerService,
+        interaction: CommandInteraction
+    ): Promise<boolean> {
+        if (hooks) {
+            for (const hook of hooks) {
+                const hookFunction = hook[timing];
+                if (hookFunction && !(await hookFunction(logger, shardClient, playerService, interaction))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public async handleAutocompleteInteraction(
